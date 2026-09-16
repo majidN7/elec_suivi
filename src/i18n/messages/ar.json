@@ -1,0 +1,132 @@
+{
+  "common": {
+    "appName": "متابعة النتائج الانتخابية",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "submit": "إرسال",
+    "back": "رجوع",
+    "search": "بحث",
+    "actions": "إجراءات",
+    "status": "الحالة",
+    "date": "التاريخ",
+    "yes": "نعم",
+    "no": "لا",
+    "close": "إغلاق",
+    "loading": "جارٍ التحميل...",
+    "confirm": "تأكيد",
+    "download": "تنزيل",
+    "import": "استيراد",
+    "error": "خطأ",
+    "success": "نجاح"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "loginTitle": "تسجيل الدخول إلى حسابك",
+    "loginError": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "loginSubtitle": "تطبيق متابعة النتائج الانتخابية"
+  },
+  "nav": {
+    "dashboard": "لوحة القيادة",
+    "bureaux": "مكاتب التصويت",
+    "lieux": "مراكز التصويت",
+    "partis": "الأحزاب السياسية",
+    "saisie": "إدخال النتائج",
+    "users": "المستخدمون",
+    "unlockRequests": "طلبات إلغاء القفل",
+    "audit": "سجل التدقيق",
+    "import": "استيراد جماعي"
+  },
+  "roles": {
+    "ADMIN_NATIONAL": "المسؤول الوطني",
+    "AGENT_SAISIE": "عون الإدخال"
+  },
+  "dashboard": {
+    "title": "لوحة القيادة الوطنية",
+    "totalBureaux": "مكاتب التصويت",
+    "bureauxSoumis": "النتائج المرسلة",
+    "tauxSoumission": "نسبة الإرسال",
+    "tauxParticipation": "نسبة المشاركة",
+    "totalInscrits": "المسجلون",
+    "totalVotants": "المصوتون",
+    "votesRejetes": "الأصوات الملغاة",
+    "voixParParti": "الأصوات حسب الحزب",
+    "progressionSaisie": "تقدم الإدخال"
+  },
+  "geo": {
+    "lieuDeVote": "مركز التصويت",
+    "lieuxDeVote": "مراكز التصويت",
+    "bureauDeVote": "مكتب التصويت",
+    "bureauxDeVote": "مكاتب التصويت",
+    "code": "الرمز",
+    "nom": "الاسم",
+    "adresse": "العنوان",
+    "inscrits": "المسجلون",
+    "nouveauLieu": "مركز تصويت جديد",
+    "nouveauBureau": "مكتب تصويت جديد"
+  },
+  "partis": {
+    "title": "الأحزاب السياسية",
+    "nouveauParti": "حزب جديد",
+    "couleur": "اللون"
+  },
+  "saisie": {
+    "title": "إدخال النتائج",
+    "mesBureaux": "مكاتبي المخصصة",
+    "totalVotants": "العدد الإجمالي للمصوتين",
+    "votesRejetes": "الأصوات الملغاة (باطلة/بيضاء)",
+    "voixParParti": "الأصوات المحصل عليها حسب الحزب",
+    "sommeControle": "مجموع المراقبة",
+    "erreurSomme": "يجب أن يساوي إجمالي المصوتين مجموع أصوات الأحزاب زائد الأصوات الملغاة",
+    "brouillon": "مسودة",
+    "soumis": "مرسل",
+    "verrouille": "مقفل",
+    "confirmSubmit": "بمجرد الإرسال، ستُقفل هذه النتيجة ولن يمكن تعديلها دون موافقة المسؤول. هل تريد تأكيد الإرسال؟",
+    "demanderDeverouillage": "طلب إلغاء القفل",
+    "motifDeverouillage": "سبب الطلب",
+    "saveDraft": "حفظ المسودة"
+  },
+  "unlock": {
+    "title": "طلبات إلغاء القفل",
+    "enAttente": "قيد الانتظار",
+    "approuvee": "موافق عليه",
+    "rejetee": "مرفوض",
+    "approuver": "الموافقة",
+    "rejeter": "رفض",
+    "demandePar": "طلب من طرف",
+    "motif": "السبب",
+    "bureau": "المكتب",
+    "motifTraitement": "سبب القرار"
+  },
+  "audit": {
+    "title": "سجل التدقيق",
+    "utilisateur": "المستخدم",
+    "action": "الإجراء",
+    "entite": "الكيان",
+    "details": "التفاصيل"
+  },
+  "users": {
+    "title": "إدارة المستخدمين",
+    "nouveauUser": "مستخدم جديد",
+    "nom": "الاسم",
+    "email": "البريد الإلكتروني",
+    "role": "الدور",
+    "actif": "نشط",
+    "bureauxAssignes": "المكاتب المخصصة",
+    "motDePasse": "كلمة المرور"
+  },
+  "import": {
+    "title": "استيراد جماعي",
+    "bureaux": "استيراد مكاتب التصويت",
+    "partis": "استيراد الأحزاب السياسية",
+    "template": "تنزيل النموذج",
+    "selectFile": "اختر ملف CSV أو Excel",
+    "lignesImportees": "أسطر تم استيرادها بنجاح",
+    "lignesErreur": "أسطر بها أخطاء"
+  }
+}

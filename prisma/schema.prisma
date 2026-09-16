@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN_NATIONAL
+  AGENT_SAISIE
+}
+
+enum ResultatStatut {
+  BROUILLON
+  SOUMIS
+}
+
+enum UnlockStatut {
+  EN_ATTENTE
+  APPROUVEE
+  REJETEE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(AGENT_SAISIE)
+  actif        Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignments             AgentAssignment[]
+  resultatsSoumis         Resultat[]        @relation("ResultatSoumisPar")
+  unlockRequestsDemandees UnlockRequest[]   @relation("UnlockDemandePar")
+  unlockRequestsTraitees  UnlockRequest[]   @relation("UnlockTraitePar")
+  auditLogs               AuditLog[]
+
+  @@map("users")
+}
+
+model LieuDeVote {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  nom       String
+  adresse   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bureaux BureauVote[]
+
+  @@map("lieux_de_vote")
+}
+
+model BureauVote {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  nom          String
+  inscrits     Int?
+  lieuDeVoteId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  lieuDeVote  LieuDeVote        @relation(fields: [lieuDeVoteId], references: [id], onDelete: Restrict)
+  resultat    Resultat?
+  assignments AgentAssignment[]
+
+  @@index([lieuDeVoteId])
+  @@map("bureaux_de_vote")
+}
+
+model PartiPolitique {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  nom       String
+  couleur   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  voix ResultatVoixParti[]
+
+  @@map("partis_politiques")
+}
+
+model Resultat {
+  id           String         @id @default(cuid())
+  bureauVoteId String         @unique
+  totalVotants Int
+  votesRejetes Int
+  statut       ResultatStatut @default(BROUILLON)
+  soumisParId  String?
+  soumisAt     DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  bureauVote     BureauVote          @relation(fields: [bureauVoteId], references: [id], onDelete: Restrict)
+  soumisPar      User?               @relation("ResultatSoumisPar", fields: [soumisParId], references: [id])
+  voix           ResultatVoixParti[]
+  unlockRequests UnlockRequest[]
+
+  @@map("resultats")
+}
+
+model ResultatVoixParti {
+  id         String @id @default(cuid())
+  resultatId String
+  partiId    String
+  voix       Int
+
+  resultat Resultat       @relation(fields: [resultatId], references: [id], onDelete: Cascade)
+  parti    PartiPolitique @relation(fields: [partiId], references: [id], onDelete: Restrict)
+
+  @@unique([resultatId, partiId])
+  @@index([partiId])
+  @@map("resultat_voix_parti")
+}
+
+model AgentAssignment {
+  id           String   @id @default(cuid())
+  userId       String
+  bureauVoteId String
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bureauVote BureauVote @relation(fields: [bureauVoteId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bureauVoteId])
+  @@index([bureauVoteId])
+  @@map("agent_assignments")
+}
+
+model UnlockRequest {
+  id           String       @id @default(cuid())
+  resultatId   String
+  demandeParId String
+  motif        String
+  statut       UnlockStatut @default(EN_ATTENTE)
+  traiteParId  String?
+  motifTraite  String?
+  traiteAt     DateTime?
+  createdAt    DateTime     @default(now())
+
+  resultat   Resultat @relation(fields: [resultatId], references: [id], onDelete: Cascade)
+  demandePar User     @relation("UnlockDemandePar", fields: [demandeParId], references: [id])
+  traitePar  User?    @relation("UnlockTraitePar", fields: [traiteParId], references: [id])
+
+  @@index([resultatId])
+  @@index([statut])
+  @@map("unlock_requests")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entite    String
+  entiteId  String?
+  details   Json?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entite, entiteId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

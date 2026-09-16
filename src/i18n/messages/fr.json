@@ -1,0 +1,132 @@
+{
+  "common": {
+    "appName": "Suivi Électoral",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "submit": "Soumettre",
+    "back": "Retour",
+    "search": "Rechercher",
+    "actions": "Actions",
+    "status": "Statut",
+    "date": "Date",
+    "yes": "Oui",
+    "no": "Non",
+    "close": "Fermer",
+    "loading": "Chargement...",
+    "confirm": "Confirmer",
+    "download": "Télécharger",
+    "import": "Importer",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "auth": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "loginTitle": "Connexion à votre compte",
+    "loginError": "E-mail ou mot de passe incorrect",
+    "loginSubtitle": "Application de suivi des résultats électoraux"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "bureaux": "Bureaux de vote",
+    "lieux": "Lieux de vote",
+    "partis": "Partis politiques",
+    "saisie": "Saisie des résultats",
+    "users": "Utilisateurs",
+    "unlockRequests": "Demandes de déverrouillage",
+    "audit": "Journal d'audit",
+    "import": "Import en masse"
+  },
+  "roles": {
+    "ADMIN_NATIONAL": "Administrateur national",
+    "AGENT_SAISIE": "Agent de saisie"
+  },
+  "dashboard": {
+    "title": "Tableau de bord national",
+    "totalBureaux": "Bureaux de vote",
+    "bureauxSoumis": "Résultats soumis",
+    "tauxSoumission": "Taux de soumission",
+    "tauxParticipation": "Taux de participation",
+    "totalInscrits": "Inscrits",
+    "totalVotants": "Votants",
+    "votesRejetes": "Votes rejetés",
+    "voixParParti": "Voix par parti",
+    "progressionSaisie": "Progression de la saisie"
+  },
+  "geo": {
+    "lieuDeVote": "Lieu de vote",
+    "lieuxDeVote": "Lieux de vote",
+    "bureauDeVote": "Bureau de vote",
+    "bureauxDeVote": "Bureaux de vote",
+    "code": "Code",
+    "nom": "Nom",
+    "adresse": "Adresse",
+    "inscrits": "Inscrits",
+    "nouveauLieu": "Nouveau lieu de vote",
+    "nouveauBureau": "Nouveau bureau de vote"
+  },
+  "partis": {
+    "title": "Partis politiques",
+    "nouveauParti": "Nouveau parti",
+    "couleur": "Couleur"
+  },
+  "saisie": {
+    "title": "Saisie des résultats",
+    "mesBureaux": "Mes bureaux assignés",
+    "totalVotants": "Nombre total de votants",
+    "votesRejetes": "Votes rejetés (nuls/blancs)",
+    "voixParParti": "Voix obtenues par parti",
+    "sommeControle": "Somme de contrôle",
+    "erreurSomme": "Le total des votants doit être égal à la somme des voix par parti plus les votes rejetés",
+    "brouillon": "Brouillon",
+    "soumis": "Soumis",
+    "verrouille": "Verrouillé",
+    "confirmSubmit": "Une fois soumis, ce résultat sera verrouillé et ne pourra plus être modifié sans validation d'un administrateur. Confirmer la soumission ?",
+    "demanderDeverouillage": "Demander un déverrouillage",
+    "motifDeverouillage": "Motif de la demande",
+    "saveDraft": "Enregistrer le brouillon"
+  },
+  "unlock": {
+    "title": "Demandes de déverrouillage",
+    "enAttente": "En attente",
+    "approuvee": "Approuvée",
+    "rejetee": "Rejetée",
+    "approuver": "Approuver",
+    "rejeter": "Rejeter",
+    "demandePar": "Demandé par",
+    "motif": "Motif",
+    "bureau": "Bureau",
+    "motifTraitement": "Motif de la décision"
+  },
+  "audit": {
+    "title": "Journal d'audit",
+    "utilisateur": "Utilisateur",
+    "action": "Action",
+    "entite": "Entité",
+    "details": "Détails"
+  },
+  "users": {
+    "title": "Gestion des utilisateurs",
+    "nouveauUser": "Nouvel utilisateur",
+    "nom": "Nom",
+    "email": "E-mail",
+    "role": "Rôle",
+    "actif": "Actif",
+    "bureauxAssignes": "Bureaux assignés",
+    "motDePasse": "Mot de passe"
+  },
+  "import": {
+    "title": "Import en masse",
+    "bureaux": "Importer des bureaux de vote",
+    "partis": "Importer des partis politiques",
+    "template": "Télécharger le modèle",
+    "selectFile": "Sélectionner un fichier CSV ou Excel",
+    "lignesImportees": "lignes importées avec succès",
+    "lignesErreur": "lignes en erreur"
+  }
+}
