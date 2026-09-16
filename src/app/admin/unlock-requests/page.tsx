@@ -1,10 +1,16 @@
 import { getTranslations } from "next-intl/server";
+import { Unlock as UnlockIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { decideUnlock } from "@/actions/unlock";
 import { UnlockDecisionForm } from "@/components/unlock-decision-form";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
 
 export default async function UnlockRequestsPage() {
   const tu = await getTranslations("unlock");
+  const te = await getTranslations("empty");
 
   const requests = await prisma.unlockRequest.findMany({
     orderBy: [{ statut: "asc" }, { createdAt: "desc" }],
@@ -21,61 +27,55 @@ export default async function UnlockRequestsPage() {
     REJETEE: tu("rejetee"),
   };
 
-  const statutClass: Record<string, string> = {
-    EN_ATTENTE: "bg-amber-100 text-amber-700",
-    APPROUVEE: "bg-green-100 text-green-700",
-    REJETEE: "bg-red-100 text-red-700",
+  const statutVariant: Record<string, BadgeVariant> = {
+    EN_ATTENTE: "warning",
+    APPROUVEE: "success",
+    REJETEE: "danger",
   };
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">{tu("title")}</h1>
+      <PageHeader title={tu("title")} />
 
-      <div className="space-y-4">
-        {requests.map((req) => (
-          <div
-            key={req.id}
-            className="rounded-lg border border-slate-200 bg-white p-4"
-          >
-            <div className="mb-2 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-slate-900">
-                  {req.resultat.bureauVote.code} — {req.resultat.bureauVote.nom}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {tu("demandePar")} : {req.demandePar.name} ·{" "}
-                  {req.createdAt.toLocaleString("fr-FR")}
-                </p>
+      {requests.length === 0 ? (
+        <Card>
+          <EmptyState icon={UnlockIcon} title={te("unlockTitle")} />
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {requests.map((req) => (
+            <Card key={req.id} className="p-4">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="font-medium text-slate-900">
+                    {req.resultat.bureauVote.code} — {req.resultat.bureauVote.nom}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {tu("demandePar")} : {req.demandePar.name} ·{" "}
+                    {req.createdAt.toLocaleString("fr-FR")}
+                  </p>
+                </div>
+                <Badge variant={statutVariant[req.statut]}>{statutLabel[req.statut]}</Badge>
               </div>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs ${statutClass[req.statut]}`}
-              >
-                {statutLabel[req.statut]}
-              </span>
-            </div>
-            <p className="mb-3 rounded-md bg-slate-50 px-3 py-2 text-sm text-slate-700">
-              {req.motif}
-            </p>
-
-            {req.statut === "EN_ATTENTE" ? (
-              <UnlockDecisionForm
-                approveAction={decideUnlock.bind(null, req.id, "APPROUVEE")}
-                rejectAction={decideUnlock.bind(null, req.id, "REJETEE")}
-              />
-            ) : (
-              <p className="text-xs text-slate-500">
-                {tu("motifTraitement")} : {req.motifTraite || "—"} ·{" "}
-                {req.traitePar?.name} ·{" "}
-                {req.traiteAt?.toLocaleString("fr-FR")}
+              <p className="mb-3 rounded-lg bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700">
+                {req.motif}
               </p>
-            )}
-          </div>
-        ))}
 
-        {requests.length === 0 && (
-          <p className="text-center text-slate-400">Aucune demande de déverrouillage</p>
-        )}
-      </div>
+              {req.statut === "EN_ATTENTE" ? (
+                <UnlockDecisionForm
+                  approveAction={decideUnlock.bind(null, req.id, "APPROUVEE")}
+                  rejectAction={decideUnlock.bind(null, req.id, "REJETEE")}
+                />
+              ) : (
+                <p className="text-xs text-slate-500">
+                  {tu("motifTraitement")} : {req.motifTraite || "—"} ·{" "}
+                  {req.traitePar?.name} · {req.traiteAt?.toLocaleString("fr-FR")}
+                </p>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

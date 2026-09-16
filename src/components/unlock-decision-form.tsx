@@ -2,6 +2,9 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Check, X } from "lucide-react";
+import { inputClass } from "@/components/ui/field";
+import { Alert } from "@/components/ui/alert";
 import type { ActionState } from "@/actions/lieux";
 
 export function UnlockDecisionForm({
@@ -31,17 +34,18 @@ export function UnlockDecisionForm({
         value={motifTraite}
         onChange={(e) => setMotifTraite(e.target.value)}
         rows={2}
-        className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+        className={inputClass}
       />
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <Alert variant="error">{error}</Alert>}
       <div className="flex gap-2">
         <form action={approveFormAction}>
           <input type="hidden" name="motifTraite" value={motifTraite} />
           <button
             type="submit"
             disabled={approvePending || rejectPending}
-            className="rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
           >
+            <Check className="h-3.5 w-3.5" />
             {tu("approuver")}
           </button>
         </form>
@@ -50,8 +54,9 @@ export function UnlockDecisionForm({
           <button
             type="submit"
             disabled={approvePending || rejectPending}
-            className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 disabled:opacity-50"
           >
+            <X className="h-3.5 w-3.5" />
             {tu("rejeter")}
           </button>
         </form>

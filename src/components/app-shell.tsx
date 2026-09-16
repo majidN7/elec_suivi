@@ -1,8 +1,29 @@
 import { getTranslations } from "next-intl/server";
-import { NavLinks } from "@/components/nav-links";
+import {
+  LayoutDashboard,
+  MapPin,
+  Building2,
+  Flag,
+  Upload,
+  Users,
+  Unlock,
+  ScrollText,
+  Vote,
+} from "lucide-react";
+import { NavLinks, type NavItem } from "@/components/nav-links";
 import { SignOutButton } from "@/components/sign-out-button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Role } from "@/generated/prisma/enums";
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
 
 export async function AppShell({
   role,
@@ -17,37 +38,62 @@ export async function AppShell({
   const tc = await getTranslations("common");
   const tr = await getTranslations("roles");
 
-  const adminItems = [
-    { href: "/admin", label: t("dashboard") },
-    { href: "/admin/lieux", label: t("lieux") },
-    { href: "/admin/bureaux", label: t("bureaux") },
-    { href: "/admin/partis", label: t("partis") },
-    { href: "/admin/import", label: t("import") },
-    { href: "/admin/users", label: t("users") },
-    { href: "/admin/unlock-requests", label: t("unlockRequests") },
-    { href: "/admin/audit", label: t("audit") },
+  const iconClass = "h-4 w-4";
+
+  const adminItems: NavItem[] = [
+    { href: "/admin", label: t("dashboard"), icon: <LayoutDashboard className={iconClass} /> },
+    { href: "/admin/lieux", label: t("lieux"), icon: <MapPin className={iconClass} /> },
+    { href: "/admin/bureaux", label: t("bureaux"), icon: <Building2 className={iconClass} /> },
+    { href: "/admin/partis", label: t("partis"), icon: <Flag className={iconClass} /> },
+    { href: "/admin/import", label: t("import"), icon: <Upload className={iconClass} /> },
+    { href: "/admin/users", label: t("users"), icon: <Users className={iconClass} /> },
+    {
+      href: "/admin/unlock-requests",
+      label: t("unlockRequests"),
+      icon: <Unlock className={iconClass} />,
+    },
+    { href: "/admin/audit", label: t("audit"), icon: <ScrollText className={iconClass} /> },
   ];
 
-  const agentItems = [{ href: "/saisie", label: t("saisie") }];
+  const agentItems: NavItem[] = [
+    { href: "/saisie", label: t("saisie"), icon: <Vote className={iconClass} /> },
+  ];
 
   const items = role === "ADMIN_NATIONAL" ? adminItems : agentItems;
 
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-64 shrink-0 flex-col gap-6 border-e border-slate-200 bg-white p-4">
-        <div>
-          <h1 className="text-base font-bold text-slate-900">{tc("appName")}</h1>
-          <p className="mt-1 text-xs text-slate-500">
-            {userName} · {tr(role)}
-          </p>
+      <aside className="flex w-64 shrink-0 flex-col border-e border-slate-200 bg-white">
+        <div className="flex items-center gap-2.5 px-4 py-5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
+            <Vote className="h-4 w-4" />
+          </div>
+          <h1 className="text-sm font-semibold text-slate-900">{tc("appName")}</h1>
         </div>
-        <NavLinks items={items} />
-        <div className="mt-auto flex flex-col gap-2">
-          <LanguageSwitcher />
-          <SignOutButton />
+
+        <div className="flex-1 overflow-y-auto px-3 py-2">
+          <NavLinks items={items} />
+        </div>
+
+        <div className="border-t border-slate-200 p-3">
+          <div className="mb-3 flex items-center gap-2.5 rounded-lg bg-slate-50 px-3 py-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">
+              {initials(userName)}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-slate-800">{userName}</p>
+              <p className="truncate text-xs text-slate-500">{tr(role)}</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <LanguageSwitcher />
+            <SignOutButton />
+          </div>
         </div>
       </aside>
-      <main className="flex-1 overflow-x-hidden p-6">{children}</main>
+      <main className="flex-1 overflow-x-hidden">
+        <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
+      </main>
     </div>
   );
 }

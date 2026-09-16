@@ -89,7 +89,9 @@
     "confirmSubmit": "Une fois soumis, ce résultat sera verrouillé et ne pourra plus être modifié sans validation d'un administrateur. Confirmer la soumission ?",
     "demanderDeverouillage": "Demander un déverrouillage",
     "motifDeverouillage": "Motif de la demande",
-    "saveDraft": "Enregistrer le brouillon"
+    "saveDraft": "Enregistrer le brouillon",
+    "aucunParti": "Aucun parti politique configuré",
+    "demandeEnvoyee": "Demande envoyée. Un administrateur va l'examiner."
   },
   "unlock": {
     "title": "Demandes de déverrouillage",
@@ -122,11 +124,27 @@
   },
   "import": {
     "title": "Import en masse",
+    "description": "Ajoutez des bureaux de vote ou des partis politiques en masse à partir d'un fichier CSV ou Excel.",
     "bureaux": "Importer des bureaux de vote",
     "partis": "Importer des partis politiques",
     "template": "Télécharger le modèle",
     "selectFile": "Sélectionner un fichier CSV ou Excel",
     "lignesImportees": "lignes importées avec succès",
     "lignesErreur": "lignes en erreur"
+  },
+  "empty": {
+    "lieuxTitle": "Aucun lieu de vote",
+    "lieuxDesc": "Ajoutez un lieu de vote manuellement ou importez-en en masse.",
+    "bureauxTitle": "Aucun bureau de vote",
+    "bureauxDesc": "Ajoutez un bureau de vote manuellement ou importez-en en masse.",
+    "partisTitle": "Aucun parti politique",
+    "partisDesc": "Ajoutez un parti manuellement ou importez-en en masse.",
+    "usersTitle": "Aucun utilisateur",
+    "unlockTitle": "Aucune demande de déverrouillage",
+    "auditTitle": "Aucune entrée",
+    "voixTitle": "Aucun résultat soumis pour le moment",
+    "voixDesc": "Les voix par parti apparaîtront ici dès qu'un bureau de vote aura soumis ses résultats.",
+    "mesBureauxTitle": "Aucun bureau de vote ne vous est assigné",
+    "mesBureauxDesc": "Contactez un administrateur national pour obtenir une affectation."
   }
 }

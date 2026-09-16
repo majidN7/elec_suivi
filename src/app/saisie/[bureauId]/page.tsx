@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { Lock } from "lucide-react";
 import { requireSession } from "@/lib/auth-helpers";
 import { assertBureauAccess } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +8,10 @@ import { saveResultatDraft, submitResultat } from "@/actions/resultats";
 import { requestUnlock } from "@/actions/unlock";
 import { ResultatForm } from "@/components/resultat-form";
 import { UnlockRequestForm } from "@/components/unlock-request-form";
+import { BackLink } from "@/components/back-link";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
 
 export default async function SaisieBureauPage({
   params,
@@ -17,6 +22,7 @@ export default async function SaisieBureauPage({
 
   const ts = await getTranslations("saisie");
   const tu = await getTranslations("unlock");
+  const tc = await getTranslations("common");
 
   const [bureau, partis] = await Promise.all([
     prisma.bureauVote.findUnique({
@@ -62,34 +68,58 @@ export default async function SaisieBureauPage({
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">{bureau.nom}</h1>
-        <p className="text-sm text-slate-500">
-          {bureau.code} · {bureau.lieuDeVote.nom}
-        </p>
-      </div>
+      <BackLink href="/saisie" label={tc("back")} />
+      <PageHeader
+        title={bureau.nom}
+        description={`${bureau.code} · ${bureau.lieuDeVote.nom}`}
+      />
 
       {isLocked ? (
-        <div className="space-y-6">
-          <div className="max-w-2xl rounded-lg border border-green-200 bg-green-50 p-4">
-            <p className="font-medium text-green-800">{ts("verrouille")}</p>
-            <p className="mt-1 text-sm text-green-700">
-              Total votants : {bureau.resultat?.totalVotants} · Votes rejetés :{" "}
-              {bureau.resultat?.votesRejetes}
-            </p>
-            <ul className="mt-2 space-y-1 text-sm text-green-700">
+        <div className="max-w-2xl space-y-6">
+          <Card className="p-5">
+            <div className="mb-3 flex items-center gap-2 text-emerald-700">
+              <Lock className="h-4 w-4" />
+              <p className="font-medium">{ts("verrouille")}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 rounded-lg bg-slate-50 p-3 text-sm">
+              <div>
+                <p className="text-xs text-slate-400">{ts("totalVotants")}</p>
+                <p className="font-semibold text-slate-900">
+                  {bureau.resultat?.totalVotants}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">{ts("votesRejetes")}</p>
+                <p className="font-semibold text-slate-900">
+                  {bureau.resultat?.votesRejetes}
+                </p>
+              </div>
+            </div>
+            <ul className="mt-3 divide-y divide-slate-100">
               {partis.map((parti) => (
-                <li key={parti.id}>
-                  {parti.nom} : {voixMap[parti.id] ?? 0}
+                <li
+                  key={parti.id}
+                  className="flex items-center justify-between py-2 text-sm"
+                >
+                  <span className="flex items-center gap-2 text-slate-700">
+                    <span
+                      className="h-2.5 w-2.5 rounded-full ring-1 ring-inset ring-black/10"
+                      style={{ backgroundColor: parti.couleur ?? "#94a3b8" }}
+                    />
+                    {parti.nom}
+                  </span>
+                  <span className="font-medium text-slate-900">
+                    {voixMap[parti.id] ?? 0}
+                  </span>
                 </li>
               ))}
             </ul>
-          </div>
+          </Card>
 
           {pendingUnlock ? (
-            <div className="max-w-md rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            <Alert variant="warning">
               {tu("enAttente")} — {pendingUnlock.motif}
-            </div>
+            </Alert>
           ) : (
             <div>
               <h2 className="mb-2 text-base font-semibold text-slate-900">

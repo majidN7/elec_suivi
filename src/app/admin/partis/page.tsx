@@ -1,13 +1,20 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Flag, Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { deleteParti } from "@/actions/partis";
 import { DeleteButton } from "@/components/delete-button";
+import { EditLink } from "@/components/edit-link";
+import { PageHeader } from "@/components/ui/page-header";
+import { ButtonLink } from "@/components/ui/button-link";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Table, Thead, Th, Tbody, Tr, Td } from "@/components/ui/table";
 
 export default async function PartisPage() {
   const t = await getTranslations("geo");
   const tp = await getTranslations("partis");
   const tc = await getTranslations("common");
+  const te = await getTranslations("empty");
 
   const partis = await prisma.partiPolitique.findMany({
     orderBy: { code: "asc" },
@@ -15,63 +22,57 @@ export default async function PartisPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">{tp("title")}</h1>
-        <Link
-          href="/admin/partis/new"
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-        >
-          {tp("nouveauParti")}
-        </Link>
-      </div>
+      <PageHeader
+        title={tp("title")}
+        action={
+          <ButtonLink href="/admin/partis/new" icon={Plus}>
+            {tp("nouveauParti")}
+          </ButtonLink>
+        }
+      />
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">{tp("couleur")}</th>
-              <th className="px-4 py-3">{t("code")}</th>
-              <th className="px-4 py-3">{t("nom")}</th>
-              <th className="px-4 py-3">{tc("actions")}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
+      {partis.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={Flag}
+            title={te("partisTitle")}
+            description={te("partisDesc")}
+          />
+        </Card>
+      ) : (
+        <Table>
+          <Thead>
+            <Th>{t("nom")}</Th>
+            <Th>{t("code")}</Th>
+            <Th>{tc("actions")}</Th>
+          </Thead>
+          <Tbody>
             {partis.map((parti) => (
-              <tr key={parti.id}>
-                <td className="px-4 py-3">
-                  <span
-                    className="inline-block h-4 w-4 rounded-full border border-slate-200"
-                    style={{ backgroundColor: parti.couleur ?? "#94a3b8" }}
-                  />
-                </td>
-                <td className="px-4 py-3 font-mono text-xs">{parti.code}</td>
-                <td className="px-4 py-3">{parti.nom}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Link
-                      href={`/admin/partis/${parti.id}`}
-                      className="text-sm text-slate-600 hover:underline"
-                    >
-                      {tc("edit")}
-                    </Link>
+              <Tr key={parti.id}>
+                <Td>
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="inline-block h-3.5 w-3.5 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
+                      style={{ backgroundColor: parti.couleur ?? "#94a3b8" }}
+                    />
+                    <span className="font-medium text-slate-900">{parti.nom}</span>
+                  </div>
+                </Td>
+                <Td className="font-mono text-xs text-slate-500">{parti.code}</Td>
+                <Td>
+                  <div className="flex items-center gap-4">
+                    <EditLink href={`/admin/partis/${parti.id}`} label={tc("edit")} />
                     <DeleteButton
                       action={deleteParti.bind(null, parti.id)}
                       confirmMessage={`Supprimer le parti "${parti.nom}" ?`}
                     />
                   </div>
-                </td>
-              </tr>
+                </Td>
+              </Tr>
             ))}
-            {partis.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
-                  Aucun parti politique
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          </Tbody>
+        </Table>
+      )}
     </div>
   );
 }

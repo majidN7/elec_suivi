@@ -1,12 +1,20 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { ArrowRight, Vote } from "lucide-react";
 import { requireSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Badge } from "@/components/ui/badge";
+import { Table, Thead, Th, Tbody, Tr, Td } from "@/components/ui/table";
 
 export default async function SaisiePage() {
   const session = await requireSession();
   const ts = await getTranslations("saisie");
   const tc = await getTranslations("common");
+  const tg = await getTranslations("geo");
+  const te = await getTranslations("empty");
 
   const assignments = await prisma.agentAssignment.findMany({
     where: { userId: session.user.id },
@@ -20,64 +28,54 @@ export default async function SaisiePage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">{ts("mesBureaux")}</h1>
+      <PageHeader title={ts("mesBureaux")} />
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Code</th>
-              <th className="px-4 py-3">Bureau</th>
-              <th className="px-4 py-3">Lieu de vote</th>
-              <th className="px-4 py-3">{tc("status")}</th>
-              <th className="px-4 py-3">{tc("actions")}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
+      {assignments.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={Vote}
+            title={te("mesBureauxTitle")}
+            description={te("mesBureauxDesc")}
+          />
+        </Card>
+      ) : (
+        <Table>
+          <Thead>
+            <Th>{tg("code")}</Th>
+            <Th>{tg("bureauDeVote")}</Th>
+            <Th>{tg("lieuDeVote")}</Th>
+            <Th>{tc("status")}</Th>
+            <Th>{tc("actions")}</Th>
+          </Thead>
+          <Tbody>
             {assignments.map(({ bureauVote }) => (
-              <tr key={bureauVote.id}>
-                <td className="px-4 py-3 font-mono text-xs">{bureauVote.code}</td>
-                <td className="px-4 py-3">{bureauVote.nom}</td>
-                <td className="px-4 py-3 text-slate-500">
-                  {bureauVote.lieuDeVote.nom}
-                </td>
-                <td className="px-4 py-3">
-                  {!bureauVote.resultat && (
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                      —
-                    </span>
-                  )}
+              <Tr key={bureauVote.id}>
+                <Td className="font-mono text-xs text-slate-500">{bureauVote.code}</Td>
+                <Td className="font-medium text-slate-900">{bureauVote.nom}</Td>
+                <Td className="text-slate-500">{bureauVote.lieuDeVote.nom}</Td>
+                <Td>
+                  {!bureauVote.resultat && <Badge variant="neutral">—</Badge>}
                   {bureauVote.resultat?.statut === "BROUILLON" && (
-                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
-                      {ts("brouillon")}
-                    </span>
+                    <Badge variant="warning">{ts("brouillon")}</Badge>
                   )}
                   {bureauVote.resultat?.statut === "SOUMIS" && (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
-                      {ts("verrouille")}
-                    </span>
+                    <Badge variant="success">{ts("verrouille")}</Badge>
                   )}
-                </td>
-                <td className="px-4 py-3">
+                </Td>
+                <Td>
                   <Link
                     href={`/saisie/${bureauVote.id}`}
-                    className="text-sm text-slate-600 hover:underline"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
                   >
                     {ts("title")}
+                    <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
                   </Link>
-                </td>
-              </tr>
+                </Td>
+              </Tr>
             ))}
-            {assignments.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
-                  Aucun bureau de vote ne vous est assigné
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          </Tbody>
+        </Table>
+      )}
     </div>
   );
 }

@@ -1,13 +1,18 @@
 import { getTranslations } from "next-intl/server";
+import { Building2, CheckCircle2, Users, XCircle, BarChart3 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StatTile } from "@/components/stat-tile";
 import { VoixBarChart } from "@/components/charts/voix-bar-chart";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const nf = new Intl.NumberFormat("fr-FR");
 const pf = new Intl.NumberFormat("fr-FR", { style: "percent", maximumFractionDigits: 1 });
 
 export default async function AdminDashboardPage() {
   const td = await getTranslations("dashboard");
+  const te = await getTranslations("empty");
 
   const [totalBureaux, resultatsSoumis, voixRows] = await Promise.all([
     prisma.bureauVote.count(),
@@ -57,50 +62,65 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">{td("title")}</h1>
+      <PageHeader title={td("title")} />
 
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatTile label={td("totalBureaux")} value={nf.format(totalBureaux)} />
+        <StatTile
+          label={td("totalBureaux")}
+          value={nf.format(totalBureaux)}
+          icon={Building2}
+        />
         <StatTile
           label={td("bureauxSoumis")}
           value={nf.format(bureauxSoumis)}
           sublabel={`${td("tauxSoumission")} : ${pf.format(tauxSoumission)}`}
+          icon={CheckCircle2}
         />
         <StatTile
           label={td("totalVotants")}
           value={nf.format(totalVotants)}
           sublabel={`${td("tauxParticipation")} : ${pf.format(tauxParticipation)}`}
+          icon={Users}
         />
-        <StatTile label={td("votesRejetes")} value={nf.format(totalVotesRejetes)} />
+        <StatTile
+          label={td("votesRejetes")}
+          value={nf.format(totalVotesRejetes)}
+          icon={XCircle}
+        />
       </div>
 
-      <div className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+      <Card className="mb-6 p-4">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="font-medium text-slate-700">
             {td("progressionSaisie")}
           </span>
-          <span className="text-slate-500">{pf.format(tauxSoumission)}</span>
+          <span className="font-semibold text-slate-900">{pf.format(tauxSoumission)}</span>
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full rounded-full bg-slate-900 transition-all"
+            className="h-full rounded-full bg-brand-600 transition-all"
             style={{ width: `${Math.min(100, tauxSoumission * 100)}%` }}
           />
         </div>
-      </div>
+        <p className="mt-1.5 text-xs text-slate-400">
+          {nf.format(bureauxSoumis)} / {nf.format(totalBureaux)}
+        </p>
+      </Card>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4">
+      <Card className="p-4">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">
           {td("voixParParti")}
         </h2>
         {voixParParti.length > 0 ? (
           <VoixBarChart data={voixParParti} />
         ) : (
-          <p className="py-8 text-center text-sm text-slate-400">
-            Aucun résultat soumis pour le moment
-          </p>
+          <EmptyState
+            icon={BarChart3}
+            title={te("voixTitle")}
+            description={te("voixDesc")}
+          />
         )}
-      </div>
+      </Card>
     </div>
   );
 }

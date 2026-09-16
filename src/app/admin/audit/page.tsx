@@ -1,5 +1,11 @@
 import { getTranslations } from "next-intl/server";
+import { ScrollText } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
+import { Table, Thead, Th, Tbody, Tr, Td } from "@/components/ui/table";
 
 const ACTION_LABELS: Record<string, string> = {
   CREATE: "Création",
@@ -13,20 +19,21 @@ const ACTION_LABELS: Record<string, string> = {
   UNLOCK_REJECT: "Déverrouillage rejeté",
 };
 
-const ACTION_CLASS: Record<string, string> = {
-  CREATE: "bg-blue-100 text-blue-700",
-  UPDATE: "bg-slate-100 text-slate-700",
-  DELETE: "bg-red-100 text-red-700",
-  IMPORT: "bg-purple-100 text-purple-700",
-  SAVE_DRAFT: "bg-slate-100 text-slate-700",
-  SUBMIT: "bg-green-100 text-green-700",
-  UNLOCK_REQUEST: "bg-amber-100 text-amber-700",
-  UNLOCK_APPROVE: "bg-green-100 text-green-700",
-  UNLOCK_REJECT: "bg-red-100 text-red-700",
+const ACTION_VARIANT: Record<string, BadgeVariant> = {
+  CREATE: "brand",
+  UPDATE: "neutral",
+  DELETE: "danger",
+  IMPORT: "brand",
+  SAVE_DRAFT: "neutral",
+  SUBMIT: "success",
+  UNLOCK_REQUEST: "warning",
+  UNLOCK_APPROVE: "success",
+  UNLOCK_REJECT: "danger",
 };
 
 export default async function AuditPage() {
   const ta = await getTranslations("audit");
+  const te = await getTranslations("empty");
 
   const logs = await prisma.auditLog.findMany({
     orderBy: { createdAt: "desc" },
@@ -36,58 +43,49 @@ export default async function AuditPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">{ta("title")}</h1>
+      <PageHeader title={ta("title")} />
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">{ta("action")}</th>
-              <th className="px-4 py-3">{ta("entite")}</th>
-              <th className="px-4 py-3">{ta("utilisateur")}</th>
-              <th className="px-4 py-3">{ta("details")}</th>
-              <th className="px-4 py-3">Date</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
+      {logs.length === 0 ? (
+        <Card>
+          <EmptyState icon={ScrollText} title={te("auditTitle")} />
+        </Card>
+      ) : (
+        <Table>
+          <Thead>
+            <Th>{ta("action")}</Th>
+            <Th>{ta("entite")}</Th>
+            <Th>{ta("utilisateur")}</Th>
+            <Th>{ta("details")}</Th>
+            <Th>Date</Th>
+          </Thead>
+          <Tbody>
             {logs.map((log) => (
-              <tr key={log.id}>
-                <td className="px-4 py-3">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${ACTION_CLASS[log.action] ?? "bg-slate-100 text-slate-700"}`}
-                  >
+              <Tr key={log.id}>
+                <Td>
+                  <Badge variant={ACTION_VARIANT[log.action] ?? "neutral"}>
                     {ACTION_LABELS[log.action] ?? log.action}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-slate-700">
+                  </Badge>
+                </Td>
+                <Td>
                   {log.entite}
                   {log.entiteId && (
-                    <span className="ml-1 font-mono text-xs text-slate-400">
+                    <span className="ms-1 font-mono text-xs text-slate-400">
                       {log.entiteId.slice(0, 8)}
                     </span>
                   )}
-                </td>
-                <td className="px-4 py-3 text-slate-500">
-                  {log.user?.name ?? "—"}
-                </td>
-                <td className="px-4 py-3 font-mono text-xs text-slate-500">
+                </Td>
+                <Td className="text-slate-500">{log.user?.name ?? "—"}</Td>
+                <Td className="font-mono text-xs text-slate-500">
                   {log.details ? JSON.stringify(log.details) : "—"}
-                </td>
-                <td className="px-4 py-3 text-slate-500">
+                </Td>
+                <Td className="text-slate-500">
                   {log.createdAt.toLocaleString("fr-FR")}
-                </td>
-              </tr>
+                </Td>
+              </Tr>
             ))}
-            {logs.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
-                  Aucune entrée
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          </Tbody>
+        </Table>
+      )}
     </div>
   );
 }
