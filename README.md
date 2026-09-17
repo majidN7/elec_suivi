@@ -40,3 +40,32 @@ Le seed crée un compte **Administrateur national** :
 - `npm run start` — démarrage en production
 - `npx prisma migrate dev` — nouvelle migration en développement
 - `npx prisma db seed` — (re)créer le compte administrateur national
+
+## Docker
+
+L'application et PostgreSQL peuvent être lancés entièrement dans des conteneurs via Docker Compose.
+
+```bash
+cp .env.example .env
+# renseigner au minimum NEXTAUTH_SECRET, POSTGRES_PASSWORD et SEED_ADMIN_PASSWORD dans .env
+docker compose up --build
+```
+
+Au démarrage, le conteneur `app` applique automatiquement les migrations (`prisma migrate deploy`) puis crée le compte Administrateur national s'il n'existe pas encore (`prisma db seed`). L'application est ensuite accessible sur http://localhost:3000.
+
+- `docker compose up -d --build` — démarrer en arrière-plan
+- `docker compose logs -f app` — suivre les journaux de l'application
+- `docker compose down` — arrêter les conteneurs (les données PostgreSQL sont conservées dans le volume `db_data`)
+- `docker compose down -v` — arrêter et supprimer aussi les données PostgreSQL
+
+Variables d'environnement lues par `docker-compose.yml` (à définir dans `.env`) :
+
+| Variable | Rôle | Défaut |
+|---|---|---|
+| `POSTGRES_PASSWORD` | Mot de passe de la base PostgreSQL | `elec_app_dev_pw` |
+| `NEXTAUTH_SECRET` | Secret de signature des sessions (**obligatoire**, `openssl rand -base64 32`) | — |
+| `NEXTAUTH_URL` | URL publique de l'application | `http://localhost:3000` |
+| `SEED_ADMIN_EMAIL` | E-mail du compte Administrateur national créé au démarrage | `admin@elec-suivi.local` |
+| `SEED_ADMIN_PASSWORD` | Mot de passe initial de ce compte (à changer après la première connexion) | `ChangeMe123!` |
+
+Pour un déploiement en production, changez impérativement `NEXTAUTH_SECRET`, `POSTGRES_PASSWORD` et `SEED_ADMIN_PASSWORD`, et envisagez de retirer l'exposition du port `5432` dans `docker-compose.yml` si PostgreSQL n'a pas besoin d'être accessible depuis l'hôte.
