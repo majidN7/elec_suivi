@@ -39,6 +39,7 @@ export const userCreateSchema = userSchema.extend({
 export const resultatSchema = z
   .object({
     bureauVoteId: z.string().min(1),
+    typeListe: z.enum(["LOCALE", "REGIONALE"]),
     totalVotants: z.coerce.number().int().min(0, "Doit être positif"),
     votesRejetes: z.coerce.number().int().min(0, "Doit être positif"),
     voix: z.array(

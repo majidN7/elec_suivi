@@ -8,6 +8,7 @@ import { assertBureauAccess } from "@/lib/access";
 import { resultatSchema } from "@/lib/validation";
 import { logAudit } from "@/lib/audit";
 import type { ActionState } from "@/actions/lieux";
+import type { TypeListe } from "@/generated/prisma/enums";
 
 const draftSchema = z.object({
   totalVotants: z.coerce.number().int().min(0),
@@ -27,9 +28,9 @@ function extractVoixFromFormData(formData: FormData, partiIds: string[]) {
   }));
 }
 
-async function assertEditable(bureauVoteId: string) {
+async function assertEditable(bureauVoteId: string, typeListe: TypeListe) {
   const resultat = await prisma.resultat.findUnique({
-    where: { bureauVoteId },
+    where: { bureauVoteId_typeListe: { bureauVoteId, typeListe } },
   });
   if (resultat?.statut === "SOUMIS") {
     throw new Error(
@@ -41,6 +42,7 @@ async function assertEditable(bureauVoteId: string) {
 
 export async function saveResultatDraft(
   bureauVoteId: string,
+  typeListe: TypeListe,
   partiIds: string[],
   _prevState: ActionState,
   formData: FormData,
@@ -49,7 +51,7 @@ export async function saveResultatDraft(
   await assertBureauAccess(session.user.id, session.user.role, bureauVoteId);
 
   try {
-    await assertEditable(bureauVoteId);
+    await assertEditable(bureauVoteId, typeListe);
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Erreur" };
   }
@@ -66,13 +68,14 @@ export async function saveResultatDraft(
 
   await prisma.$transaction(async (tx) => {
     const resultat = await tx.resultat.upsert({
-      where: { bureauVoteId },
+      where: { bureauVoteId_typeListe: { bureauVoteId, typeListe } },
       update: {
         totalVotants: parsed.data.totalVotants,
         votesRejetes: parsed.data.votesRejetes,
       },
       create: {
         bureauVoteId,
+        typeListe,
         totalVotants: parsed.data.totalVotants,
         votesRejetes: parsed.data.votesRejetes,
         statut: "BROUILLON",
@@ -93,6 +96,7 @@ export async function saveResultatDraft(
     action: "SAVE_DRAFT",
     entite: "Resultat",
     entiteId: bureauVoteId,
+    details: { typeListe },
   });
 
   revalidatePath(`/saisie/${bureauVoteId}`);
@@ -101,6 +105,7 @@ export async function saveResultatDraft(
 
 export async function submitResultat(
   bureauVoteId: string,
+  typeListe: TypeListe,
   partiIds: string[],
   _prevState: ActionState,
   formData: FormData,
@@ -109,13 +114,14 @@ export async function submitResultat(
   await assertBureauAccess(session.user.id, session.user.role, bureauVoteId);
 
   try {
-    await assertEditable(bureauVoteId);
+    await assertEditable(bureauVoteId, typeListe);
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Erreur" };
   }
 
   const parsed = resultatSchema.safeParse({
     bureauVoteId,
+    typeListe,
     totalVotants: formData.get("totalVotants"),
     votesRejetes: formData.get("votesRejetes"),
     voix: extractVoixFromFormData(formData, partiIds),
@@ -127,7 +133,7 @@ export async function submitResultat(
 
   await prisma.$transaction(async (tx) => {
     const resultat = await tx.resultat.upsert({
-      where: { bureauVoteId },
+      where: { bureauVoteId_typeListe: { bureauVoteId, typeListe } },
       update: {
         totalVotants: parsed.data.totalVotants,
         votesRejetes: parsed.data.votesRejetes,
@@ -137,6 +143,7 @@ export async function submitResultat(
       },
       create: {
         bureauVoteId,
+        typeListe,
         totalVotants: parsed.data.totalVotants,
         votesRejetes: parsed.data.votesRejetes,
         statut: "SOUMIS",
@@ -162,6 +169,7 @@ export async function submitResultat(
     entite: "Resultat",
     entiteId: bureauVoteId,
     details: {
+      typeListe,
       totalVotants: parsed.data.totalVotants,
       votesRejetes: parsed.data.votesRejetes,
     },

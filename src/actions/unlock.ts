@@ -7,9 +7,11 @@ import { assertBureauAccess } from "@/lib/access";
 import { unlockRequestSchema, unlockDecisionSchema } from "@/lib/validation";
 import { logAudit } from "@/lib/audit";
 import type { ActionState } from "@/actions/lieux";
+import type { TypeListe } from "@/generated/prisma/enums";
 
 export async function requestUnlock(
   bureauVoteId: string,
+  typeListe: TypeListe,
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
@@ -17,7 +19,7 @@ export async function requestUnlock(
   await assertBureauAccess(session.user.id, session.user.role, bureauVoteId);
 
   const resultat = await prisma.resultat.findUnique({
-    where: { bureauVoteId },
+    where: { bureauVoteId_typeListe: { bureauVoteId, typeListe } },
   });
 
   if (!resultat || resultat.statut !== "SOUMIS") {
@@ -53,7 +55,7 @@ export async function requestUnlock(
     action: "UNLOCK_REQUEST",
     entite: "Resultat",
     entiteId: resultat.id,
-    details: { unlockRequestId: unlockRequest.id, motif: parsed.data.motif },
+    details: { unlockRequestId: unlockRequest.id, typeListe, motif: parsed.data.motif },
   });
 
   revalidatePath(`/saisie/${bureauVoteId}`);

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { deleteBureau } from "@/actions/bureaux";
 import { DeleteButton } from "@/components/delete-button";
 import { EditLink } from "@/components/edit-link";
-import { ResultatStatusBadge } from "@/components/resultat-status-badge";
+import { ListeStatusBadges } from "@/components/liste-status-badges";
 import { PageHeader } from "@/components/ui/page-header";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Card } from "@/components/ui/card";
@@ -16,13 +16,19 @@ export default async function BureauxPage() {
   const tc = await getTranslations("common");
   const ts = await getTranslations("saisie");
   const te = await getTranslations("empty");
+  const tl = await getTranslations("listes");
 
   const bureaux = await prisma.bureauVote.findMany({
     orderBy: { code: "asc" },
-    include: { lieuDeVote: true, resultat: true },
+    include: { lieuDeVote: true, resultats: true },
   });
 
-  const statusLabels = { brouillon: ts("brouillon"), soumis: ts("soumis") };
+  const statusLabels = {
+    locale: tl("locale"),
+    regionale: tl("regionale"),
+    brouillon: ts("brouillon"),
+    soumis: ts("soumis"),
+  };
 
   return (
     <div>
@@ -61,10 +67,7 @@ export default async function BureauxPage() {
                 <Td className="text-slate-500">{bureau.lieuDeVote.nom}</Td>
                 <Td>{bureau.inscrits ?? "—"}</Td>
                 <Td>
-                  <ResultatStatusBadge
-                    statut={bureau.resultat?.statut ?? null}
-                    labels={statusLabels}
-                  />
+                  <ListeStatusBadges resultats={bureau.resultats} labels={statusLabels} />
                 </Td>
                 <Td>
                   <div className="flex items-center gap-4">

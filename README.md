@@ -5,8 +5,8 @@ Application web de saisie et de gestion des résultats électoraux (Next.js, Pos
 ## Fonctionnalités
 
 - Hiérarchie **Lieu de vote → Bureaux de vote**.
-- Saisie par bureau : total des votants, votes rejetés, voix par parti, avec contrôle automatique (total = somme des voix + rejetés).
-- Verrouillage automatique d'un résultat soumis ; correction possible uniquement après approbation d'une demande de déverrouillage par un administrateur national.
+- Saisie par bureau, **séparément pour la liste locale et la liste régionale** : total des votants, votes rejetés, voix par parti pour chaque liste, avec contrôle automatique (total = somme des voix + rejetés) propre à chaque liste.
+- Verrouillage automatique d'un résultat soumis ; chaque liste (locale/régionale) d'un bureau se verrouille et se déverrouille indépendamment, après approbation d'une demande de déverrouillage par un administrateur national.
 - Référentiels (bureaux, partis) gérables manuellement ou par import CSV/Excel en masse, avec modèle téléchargeable.
 - Gestion des utilisateurs et des rôles : **Administrateur national** et **Agent de saisie** (assigné à un ou plusieurs bureaux).
 - Journal d'audit de toutes les actions sensibles.

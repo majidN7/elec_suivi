@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Badge } from "@/components/ui/badge";
+import { ListeStatusBadges } from "@/components/liste-status-badges";
 import { Table, Thead, Th, Tbody, Tr, Td } from "@/components/ui/table";
 
 export default async function SaisiePage() {
@@ -15,12 +15,20 @@ export default async function SaisiePage() {
   const tc = await getTranslations("common");
   const tg = await getTranslations("geo");
   const te = await getTranslations("empty");
+  const tl = await getTranslations("listes");
+
+  const statusLabels = {
+    locale: tl("locale"),
+    regionale: tl("regionale"),
+    brouillon: ts("brouillon"),
+    soumis: ts("verrouille"),
+  };
 
   const assignments = await prisma.agentAssignment.findMany({
     where: { userId: session.user.id },
     include: {
       bureauVote: {
-        include: { lieuDeVote: true, resultat: true },
+        include: { lieuDeVote: true, resultats: true },
       },
     },
     orderBy: { bureauVote: { code: "asc" } },
@@ -54,13 +62,7 @@ export default async function SaisiePage() {
                 <Td className="font-medium text-slate-900">{bureauVote.nom}</Td>
                 <Td className="text-slate-500">{bureauVote.lieuDeVote.nom}</Td>
                 <Td>
-                  {!bureauVote.resultat && <Badge variant="neutral">—</Badge>}
-                  {bureauVote.resultat?.statut === "BROUILLON" && (
-                    <Badge variant="warning">{ts("brouillon")}</Badge>
-                  )}
-                  {bureauVote.resultat?.statut === "SOUMIS" && (
-                    <Badge variant="success">{ts("verrouille")}</Badge>
-                  )}
+                  <ListeStatusBadges resultats={bureauVote.resultats} labels={statusLabels} />
                 </Td>
                 <Td>
                   <Link

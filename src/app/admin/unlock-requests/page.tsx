@@ -11,6 +11,12 @@ import { Badge, type BadgeVariant } from "@/components/ui/badge";
 export default async function UnlockRequestsPage() {
   const tu = await getTranslations("unlock");
   const te = await getTranslations("empty");
+  const tl = await getTranslations("listes");
+
+  const listeLabel: Record<string, string> = {
+    LOCALE: tl("locale"),
+    REGIONALE: tl("regionale"),
+  };
 
   const requests = await prisma.unlockRequest.findMany({
     orderBy: [{ statut: "asc" }, { createdAt: "desc" }],
@@ -48,7 +54,10 @@ export default async function UnlockRequestsPage() {
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium text-slate-900">
-                    {req.resultat.bureauVote.code} — {req.resultat.bureauVote.nom}
+                    {req.resultat.bureauVote.code} — {req.resultat.bureauVote.nom}{" "}
+                    <span className="font-normal text-slate-400">
+                      ({listeLabel[req.resultat.typeListe]})
+                    </span>
                   </p>
                   <p className="text-xs text-slate-500">
                     {tu("demandePar")} : {req.demandePar.name} ·{" "}

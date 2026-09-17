@@ -20,6 +20,11 @@ enum ResultatStatut {
   SOUMIS
 }
 
+enum TypeListe {
+  LOCALE
+  REGIONALE
+}
+
 enum UnlockStatut {
   EN_ATTENTE
   APPROUVEE
@@ -68,7 +73,7 @@ model BureauVote {
   updatedAt    DateTime @updatedAt
 
   lieuDeVote  LieuDeVote        @relation(fields: [lieuDeVoteId], references: [id], onDelete: Restrict)
-  resultat    Resultat?
+  resultats   Resultat[]
   assignments AgentAssignment[]
 
   @@index([lieuDeVoteId])
@@ -90,7 +95,8 @@ model PartiPolitique {
 
 model Resultat {
   id           String         @id @default(cuid())
-  bureauVoteId String         @unique
+  bureauVoteId String
+  typeListe    TypeListe
   totalVotants Int
   votesRejetes Int
   statut       ResultatStatut @default(BROUILLON)
@@ -104,6 +110,7 @@ model Resultat {
   voix           ResultatVoixParti[]
   unlockRequests UnlockRequest[]
 
+  @@unique([bureauVoteId, typeListe])
   @@map("resultats")
 }
 

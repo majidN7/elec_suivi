@@ -103,7 +103,7 @@ export async function updateBureau(
 export async function deleteBureau(id: string) {
   const session = await requireAdmin();
 
-  const resultat = await prisma.resultat.findUnique({
+  const resultat = await prisma.resultat.findFirst({
     where: { bureauVoteId: id },
   });
   if (resultat) {
