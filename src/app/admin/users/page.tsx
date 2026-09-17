@@ -29,7 +29,6 @@ export default async function UsersPage() {
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "asc" },
-    include: { _count: { select: { assignments: true } } },
   });
 
   return (
@@ -52,7 +51,6 @@ export default async function UsersPage() {
           <Thead>
             <Th>{tu("nom")}</Th>
             <Th>{tu("role")}</Th>
-            <Th>{tu("bureauxAssignes")}</Th>
             <Th>{tu("actif")}</Th>
             <Th>{tc("actions")}</Th>
           </Thead>
@@ -75,7 +73,6 @@ export default async function UsersPage() {
                     {tr(user.role)}
                   </Badge>
                 </Td>
-                <Td>{user._count.assignments}</Td>
                 <Td>
                   <Badge variant={user.actif ? "success" : "neutral"}>
                     {user.actif ? tc("yes") : tc("no")}

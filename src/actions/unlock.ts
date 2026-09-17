@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireSession, requireAdmin } from "@/lib/auth-helpers";
-import { assertBureauAccess } from "@/lib/access";
 import { unlockRequestSchema, unlockDecisionSchema } from "@/lib/validation";
 import { logAudit } from "@/lib/audit";
 import type { ActionState } from "@/actions/lieux";
@@ -16,7 +15,6 @@ export async function requestUnlock(
   formData: FormData,
 ): Promise<ActionState> {
   const session = await requireSession();
-  await assertBureauAccess(session.user.id, session.user.role, bureauVoteId);
 
   const resultat = await prisma.resultat.findUnique({
     where: { bureauVoteId_typeListe: { bureauVoteId, typeListe } },

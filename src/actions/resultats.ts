@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth-helpers";
-import { assertBureauAccess } from "@/lib/access";
 import { resultatSchema } from "@/lib/validation";
 import { logAudit } from "@/lib/audit";
 import type { ActionState } from "@/actions/lieux";
@@ -48,7 +47,6 @@ export async function saveResultatDraft(
   formData: FormData,
 ): Promise<ActionState> {
   const session = await requireSession();
-  await assertBureauAccess(session.user.id, session.user.role, bureauVoteId);
 
   try {
     await assertEditable(bureauVoteId, typeListe);
@@ -111,7 +109,6 @@ export async function submitResultat(
   formData: FormData,
 ): Promise<ActionState> {
   const session = await requireSession();
-  await assertBureauAccess(session.user.id, session.user.role, bureauVoteId);
 
   try {
     await assertEditable(bureauVoteId, typeListe);

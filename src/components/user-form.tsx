@@ -10,24 +10,20 @@ import { Field, inputClass } from "@/components/ui/field";
 import { Alert } from "@/components/ui/alert";
 import type { ActionState } from "@/actions/lieux";
 
-type Bureau = { id: string; code: string; nom: string };
 type Role = "ADMIN_NATIONAL" | "AGENT_SAISIE";
 
 export function UserForm({
   action,
-  bureaux,
   requirePassword,
   defaultValues,
 }: {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
-  bureaux: Bureau[];
   requirePassword: boolean;
   defaultValues?: {
     name: string;
     email: string;
     role: Role;
     actif: boolean;
-    bureauIds: string[];
   };
 }) {
   const [state, formAction] = useActionState(action, undefined);
@@ -116,32 +112,6 @@ export function UserForm({
           />
           {tu("actif")}
         </label>
-
-        {role === "AGENT_SAISIE" && (
-          <Field label={tu("bureauxAssignes")}>
-            <div className="max-h-48 space-y-0.5 overflow-y-auto rounded-lg border border-slate-300 p-1.5">
-              {bureaux.map((bureau) => (
-                <label
-                  key={bureau.id}
-                  className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  <input
-                    type="checkbox"
-                    name="bureauIds"
-                    value={bureau.id}
-                    defaultChecked={defaultValues?.bureauIds.includes(bureau.id)}
-                    className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500/30"
-                  />
-                  <span className="font-mono text-xs text-slate-400">{bureau.code}</span>
-                  {bureau.nom}
-                </label>
-              ))}
-              {bureaux.length === 0 && (
-                <p className="px-2 py-1.5 text-sm text-slate-400">Aucun bureau de vote</p>
-              )}
-            </div>
-          </Field>
-        )}
 
         {state?.error && <Alert variant="error">{state.error}</Alert>}
 

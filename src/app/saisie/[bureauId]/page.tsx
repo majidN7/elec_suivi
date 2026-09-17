@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireSession } from "@/lib/auth-helpers";
-import { assertBureauAccess } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { ListeResultatCard } from "@/components/liste-resultat-card";
 import { BackLink } from "@/components/back-link";
@@ -11,8 +10,7 @@ export default async function SaisieBureauPage({
   params,
 }: PageProps<"/saisie/[bureauId]">) {
   const { bureauId } = await params;
-  const session = await requireSession();
-  await assertBureauAccess(session.user.id, session.user.role, bureauId);
+  await requireSession();
 
   const tc = await getTranslations("common");
   const tl = await getTranslations("listes");

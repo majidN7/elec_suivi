@@ -29,7 +29,6 @@ export const userSchema = z.object({
   email: z.string().trim().toLowerCase().email("E-mail invalide"),
   role: z.enum(["ADMIN_NATIONAL", "AGENT_SAISIE"]),
   actif: z.coerce.boolean().default(true),
-  bureauIds: z.array(z.string()).default([]),
 });
 
 export const userCreateSchema = userSchema.extend({

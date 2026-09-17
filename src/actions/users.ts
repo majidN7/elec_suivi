@@ -15,7 +15,6 @@ function extractPayload(formData: FormData) {
     email: formData.get("email"),
     role: formData.get("role"),
     actif: formData.get("actif") === "on",
-    bureauIds: formData.getAll("bureauIds"),
   };
 }
 
@@ -50,9 +49,6 @@ export async function createUser(
       role: parsed.data.role,
       actif: parsed.data.actif,
       passwordHash,
-      assignments: {
-        create: parsed.data.bureauIds.map((bureauVoteId) => ({ bureauVoteId })),
-      },
     },
   });
 
@@ -97,27 +93,15 @@ export async function updateUser(
     return { error: "Le mot de passe doit contenir au moins 8 caractères" };
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.user.update({
-      where: { id },
-      data: {
-        name: parsed.data.name,
-        email: parsed.data.email,
-        role: parsed.data.role,
-        actif: parsed.data.actif,
-        ...(passwordHash ? { passwordHash } : {}),
-      },
-    });
-
-    await tx.agentAssignment.deleteMany({ where: { userId: id } });
-    if (parsed.data.bureauIds.length > 0) {
-      await tx.agentAssignment.createMany({
-        data: parsed.data.bureauIds.map((bureauVoteId) => ({
-          userId: id,
-          bureauVoteId,
-        })),
-      });
-    }
+  await prisma.user.update({
+    where: { id },
+    data: {
+      name: parsed.data.name,
+      email: parsed.data.email,
+      role: parsed.data.role,
+      actif: parsed.data.actif,
+      ...(passwordHash ? { passwordHash } : {}),
+    },
   });
 
   await logAudit({

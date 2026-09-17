@@ -41,7 +41,6 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  assignments             AgentAssignment[]
   resultatsSoumis         Resultat[]        @relation("ResultatSoumisPar")
   unlockRequestsDemandees UnlockRequest[]   @relation("UnlockDemandePar")
   unlockRequestsTraitees  UnlockRequest[]   @relation("UnlockTraitePar")
@@ -72,9 +71,8 @@ model BureauVote {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  lieuDeVote  LieuDeVote        @relation(fields: [lieuDeVoteId], references: [id], onDelete: Restrict)
-  resultats   Resultat[]
-  assignments AgentAssignment[]
+  lieuDeVote LieuDeVote @relation(fields: [lieuDeVoteId], references: [id], onDelete: Restrict)
+  resultats  Resultat[]
 
   @@index([lieuDeVoteId])
   @@map("bureaux_de_vote")
@@ -126,20 +124,6 @@ model ResultatVoixParti {
   @@unique([resultatId, partiId])
   @@index([partiId])
   @@map("resultat_voix_parti")
-}
-
-model AgentAssignment {
-  id           String   @id @default(cuid())
-  userId       String
-  bureauVoteId String
-  createdAt    DateTime @default(now())
-
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bureauVote BureauVote @relation(fields: [bureauVoteId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, bureauVoteId])
-  @@index([bureauVoteId])
-  @@map("agent_assignments")
 }
 
 model UnlockRequest {

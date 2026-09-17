@@ -17,6 +17,8 @@
     "close": "Fermer",
     "loading": "Chargement...",
     "confirm": "Confirmer",
+    "precedent": "Précédent",
+    "suivant": "Suivant",
     "download": "Télécharger",
     "import": "Importer",
     "error": "Erreur",
@@ -77,7 +79,9 @@
   },
   "saisie": {
     "title": "Saisie des résultats",
-    "mesBureaux": "Mes bureaux assignés",
+    "rechercheTitre": "Rechercher un bureau de vote",
+    "rechercherPlaceholder": "Rechercher par code ou nom de bureau...",
+    "resultatsTrouves": "{count} bureau(x) trouvé(s)",
     "totalVotants": "Nombre total de votants",
     "votesRejetes": "Votes rejetés (nuls/blancs)",
     "voixParParti": "Voix obtenues par parti",
@@ -119,7 +123,6 @@
     "email": "E-mail",
     "role": "Rôle",
     "actif": "Actif",
-    "bureauxAssignes": "Bureaux assignés",
     "motDePasse": "Mot de passe"
   },
   "import": {
@@ -144,8 +147,10 @@
     "auditTitle": "Aucune entrée",
     "voixTitle": "Aucun résultat soumis pour le moment",
     "voixDesc": "Les voix par parti apparaîtront ici dès qu'un bureau de vote aura soumis ses résultats.",
-    "mesBureauxTitle": "Aucun bureau de vote ne vous est assigné",
-    "mesBureauxDesc": "Contactez un administrateur national pour obtenir une affectation."
+    "rechercheTitle": "Recherchez un bureau de vote",
+    "rechercheDesc": "Saisissez un code ou un nom pour retrouver un bureau de vote.",
+    "aucunResultatTitle": "Aucun bureau trouvé",
+    "aucunResultatDesc": "Essayez avec un autre code ou un autre nom."
   },
   "listes": {
     "locale": "Liste locale",

@@ -17,6 +17,8 @@
     "close": "إغلاق",
     "loading": "جارٍ التحميل...",
     "confirm": "تأكيد",
+    "precedent": "السابق",
+    "suivant": "التالي",
     "download": "تنزيل",
     "import": "استيراد",
     "error": "خطأ",
@@ -77,7 +79,9 @@
   },
   "saisie": {
     "title": "إدخال النتائج",
-    "mesBureaux": "مكاتبي المخصصة",
+    "rechercheTitre": "البحث عن مكتب تصويت",
+    "rechercherPlaceholder": "البحث بالرمز أو اسم المكتب...",
+    "resultatsTrouves": "{count} مكتب (مكاتب) موجود",
     "totalVotants": "العدد الإجمالي للمصوتين",
     "votesRejetes": "الأصوات الملغاة (باطلة/بيضاء)",
     "voixParParti": "الأصوات المحصل عليها حسب الحزب",
@@ -119,7 +123,6 @@
     "email": "البريد الإلكتروني",
     "role": "الدور",
     "actif": "نشط",
-    "bureauxAssignes": "المكاتب المخصصة",
     "motDePasse": "كلمة المرور"
   },
   "import": {
@@ -144,8 +147,10 @@
     "auditTitle": "لا توجد أي إدخالات",
     "voixTitle": "لا توجد نتائج مرسلة حتى الآن",
     "voixDesc": "ستظهر الأصوات حسب الحزب هنا بمجرد إرسال مكتب تصويت لنتائجه.",
-    "mesBureauxTitle": "لم يتم تخصيص أي مكتب تصويت لك",
-    "mesBureauxDesc": "تواصل مع المسؤول الوطني للحصول على تخصيص."
+    "rechercheTitle": "ابحث عن مكتب تصويت",
+    "rechercheDesc": "أدخل رمزًا أو اسمًا للعثور على مكتب تصويت.",
+    "aucunResultatTitle": "لم يتم العثور على أي مكتب",
+    "aucunResultatDesc": "جرّب رمزًا أو اسمًا آخر."
   },
   "listes": {
     "locale": "اللائحة المحلية",
