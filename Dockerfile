@@ -29,7 +29,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
-RUN chmod +x ./docker-entrypoint.sh \
+RUN sed -i 's/\r$//' ./docker-entrypoint.sh \
+  && chmod +x ./docker-entrypoint.sh \
   && addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs \
   && chown -R nextjs:nodejs /app
