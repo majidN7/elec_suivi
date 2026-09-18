@@ -138,19 +138,21 @@ export function ResultatForm({
                 <span className="flex-1 truncate text-sm text-slate-700">
                   {parti.nom}
                 </span>
-                <input
-                  type="number"
-                  min={0}
-                  name={`voix_${parti.id}`}
-                  value={voix[parti.id] ?? 0}
-                  onChange={(e) =>
-                    setVoix((prev) => ({
-                      ...prev,
-                      [parti.id]: Number(e.target.value),
-                    }))
-                  }
-                  className={`${inputClass} w-28 text-end`}
-                />
+                <div className="w-28 shrink-0">
+                  <input
+                    type="number"
+                    min={0}
+                    name={`voix_${parti.id}`}
+                    value={voix[parti.id] ?? 0}
+                    onChange={(e) =>
+                      setVoix((prev) => ({
+                        ...prev,
+                        [parti.id]: Number(e.target.value),
+                      }))
+                    }
+                    className={`${inputClass} text-end`}
+                  />
+                </div>
               </div>
             ))}
             {partis.length === 0 && (
