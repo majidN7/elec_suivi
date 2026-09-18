@@ -9,12 +9,12 @@ COPY prisma ./prisma
 COPY prisma7.config.ts ./
 RUN npm ci --legacy-peer-deps
 
-COPY docker-entrypoint.sh ./docker-entrypoint.sh
-RUN sed -i 's/\r$//' ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 ENV NEXT_TELEMETRY_DISABLED=1
 EXPOSE 3000
 ENV PORT=3000
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["npm", "run", "dev"]

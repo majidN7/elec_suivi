@@ -18,7 +18,3 @@ services:
       - /app/node_modules
       - /app/.next
       - /app/src/generated
-      # Keep the image's own LF-normalized copy: a Windows checkout of this
-      # bind-mounted file can carry CRLF line endings, which breaks its
-      # #!/bin/sh shebang ("no such file or directory").
-      - /app/docker-entrypoint.sh
