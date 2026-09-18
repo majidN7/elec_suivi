@@ -40,23 +40,42 @@ Le seed crée un compte **Administrateur national** :
 - `npm run start` — démarrage en production
 - `npx prisma migrate dev` — nouvelle migration en développement
 - `npx prisma db seed` — (re)créer le compte administrateur national
+- `npm run docker:dev` — lancer app + base dans Docker en mode développement (hot reload)
+- `npm run docker:prod` — lancer app + base dans Docker en mode production (arrière-plan)
+- `npm run docker:logs` — suivre les journaux du conteneur `app`
+- `npm run docker:down` — arrêter les conteneurs
 
 ## Docker
 
-L'application et PostgreSQL peuvent être lancés entièrement dans des conteneurs via Docker Compose.
+L'application et PostgreSQL sont entièrement conteneurisées via Docker Compose, avec stockage persistant (volume `db_data`) et orchestration multi-conteneurs (l'app attend que la base soit `healthy` avant de démarrer).
 
 ```bash
 cp .env.example .env
 # renseigner au minimum NEXTAUTH_SECRET, POSTGRES_PASSWORD et SEED_ADMIN_PASSWORD dans .env
-docker compose up --build
 ```
 
 Au démarrage, le conteneur `app` applique automatiquement les migrations (`prisma migrate deploy`) puis crée le compte Administrateur national s'il n'existe pas encore (`prisma db seed`). L'application est ensuite accessible sur http://localhost:3000.
 
-- `docker compose up -d --build` — démarrer en arrière-plan
+### Développement local (hot reload)
+
+```bash
+docker compose up --build
+```
+
+Sans option `-f`, Docker Compose fusionne automatiquement `docker-compose.yml` et `docker-compose.override.yml` : l'image `app` est alors construite depuis `Dockerfile.dev`, le code source est monté en volume (`.:/app`) et `next dev` tourne avec rechargement à chaud — toute modification de fichier côté hôte est reflétée immédiatement dans le conteneur. Les dossiers `node_modules`, `.next` et `src/generated` restent dans des volumes anonymes propres au conteneur (évite les conflits de binaires natifs entre l'hôte et Linux, notamment sous Windows/Mac).
+
 - `docker compose logs -f app` — suivre les journaux de l'application
+- `docker compose exec app npx prisma studio` — ouvrir Prisma Studio dans le conteneur
 - `docker compose down` — arrêter les conteneurs (les données PostgreSQL sont conservées dans le volume `db_data`)
 - `docker compose down -v` — arrêter et supprimer aussi les données PostgreSQL
+
+### Déploiement (image de production)
+
+```bash
+docker compose -f docker-compose.yml up -d --build
+```
+
+En précisant explicitement `-f docker-compose.yml`, le fichier `docker-compose.override.yml` (dev uniquement) est ignoré : l'image `app` est construite avec le `Dockerfile` multi-stage de production (`next build` puis `next start`), sans montage du code source.
 
 Variables d'environnement lues par `docker-compose.yml` (à définir dans `.env`) :
 

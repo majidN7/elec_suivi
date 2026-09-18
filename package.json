@@ -7,7 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "docker:dev": "docker compose up --build",
+    "docker:prod": "docker compose -f docker-compose.yml up -d --build",
+    "docker:logs": "docker compose logs -f app",
+    "docker:down": "docker compose down"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

@@ -13,5 +13,7 @@ README.md
 .vscode
 .idea
 Dockerfile
+Dockerfile.dev
 docker-compose.yml
+docker-compose.override.yml
 .dockerignore
