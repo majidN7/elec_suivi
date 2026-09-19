@@ -49,16 +49,27 @@
     "AGENT_SAISIE": "Agent de saisie"
   },
   "dashboard": {
-    "title": "Tableau de bord national",
+    "title": "Tableau de bord",
     "totalBureaux": "Bureaux de vote",
     "bureauxSoumis": "Résultats soumis",
     "tauxSoumission": "Taux de soumission",
     "tauxParticipation": "Taux de participation",
     "totalInscrits": "Inscrits",
     "totalVotants": "Votants",
-    "votesRejetes": "Votes rejetés",
+    "votesRejetes": "Bulletins nuls",
+    "votesExprimes": "Voix exprimées",
     "voixParParti": "Voix par parti",
-    "progressionSaisie": "Progression de la saisie"
+    "progressionSaisie": "Progression de la saisie",
+    "coherenceTitle": "Cohérence des voix",
+    "coherenceOk": "Les voix exprimées correspondent à la somme des voix saisies par parti.",
+    "coherenceErreur": "Écart détecté entre les voix exprimées et la somme des voix saisies par parti.",
+    "sommeVoixSaisies": "Somme des voix saisies",
+    "quotientElectoral": "Quotient électoral (Q)",
+    "siegesTotal": "Sièges à pourvoir",
+    "repartitionSieges": "Répartition des sièges",
+    "parti": "Parti",
+    "voix": "Voix",
+    "sieges": "Sièges"
   },
   "geo": {
     "lieuDeVote": "Lieu de vote",

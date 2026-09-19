@@ -49,15 +49,26 @@
     "AGENT_SAISIE": "عون الإدخال"
   },
   "dashboard": {
-    "title": "لوحة القيادة الوطنية",
+    "title": "لوحة القيادة",
     "totalBureaux": "مكاتب التصويت",
     "bureauxSoumis": "النتائج المرسلة",
     "tauxSoumission": "نسبة الإرسال",
     "tauxParticipation": "نسبة المشاركة",
     "totalInscrits": "المسجلون",
     "totalVotants": "المصوتون",
-    "votesRejetes": "الأصوات الملغاة",
+    "votesRejetes": "الأوراق الملغاة",
+    "votesExprimes": "الأصوات المعبر عنها",
     "voixParParti": "الأصوات حسب الحزب",
+    "coherenceTitle": "تناسق الأصوات",
+    "coherenceOk": "الأصوات المعبر عنها تطابق مجموع الأصوات المدخلة لكل حزب.",
+    "coherenceErreur": "تم رصد فارق بين الأصوات المعبر عنها ومجموع الأصوات المدخلة لكل حزب.",
+    "sommeVoixSaisies": "مجموع الأصوات المدخلة",
+    "quotientElectoral": "القاسم الانتخابي (Q)",
+    "siegesTotal": "عدد المقاعد",
+    "repartitionSieges": "توزيع المقاعد",
+    "parti": "الحزب",
+    "voix": "الأصوات",
+    "sieges": "المقاعد",
     "progressionSaisie": "تقدم الإدخال"
   },
   "geo": {

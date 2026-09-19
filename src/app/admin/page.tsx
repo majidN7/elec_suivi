@@ -1,5 +1,14 @@
 import { getTranslations } from "next-intl/server";
-import { Building2, CheckCircle2, Users, XCircle, BarChart3 } from "lucide-react";
+import {
+  Building2,
+  Users,
+  UserCheck,
+  XCircle,
+  BarChart3,
+  Landmark,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StatTile } from "@/components/stat-tile";
 import { VoixBarChart } from "@/components/charts/voix-bar-chart";
@@ -7,6 +16,7 @@ import { ListeTabs } from "@/components/liste-tabs";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { siegesPourListe, quotientElectoral, repartirSieges } from "@/lib/seats";
 import type { TypeListe } from "@/generated/prisma/enums";
 
 const nf = new Intl.NumberFormat("fr-FR");
@@ -34,14 +44,19 @@ async function getListeStats(typeListe: TypeListe, totalBureaux: number) {
   const totalVotants = resultatsSoumis.reduce((acc, r) => acc + r.totalVotants, 0);
   const totalVotesRejetes = resultatsSoumis.reduce((acc, r) => acc + r.votesRejetes, 0);
   const tauxParticipation = totalInscrits > 0 ? totalVotants / totalInscrits : 0;
+  const votesExprimes = totalVotants - totalVotesRejetes;
 
-  const voixParPartiMap = new Map<string, { nom: string; couleur: string; voix: number }>();
+  const voixParPartiMap = new Map<
+    string,
+    { id: string; nom: string; couleur: string; voix: number }
+  >();
   for (const row of voixRows) {
     const existing = voixParPartiMap.get(row.partiId);
     if (existing) {
       existing.voix += row.voix;
     } else {
       voixParPartiMap.set(row.partiId, {
+        id: row.partiId,
         nom: row.parti.nom,
         couleur: row.parti.couleur ?? "#94a3b8",
         voix: row.voix,
@@ -49,8 +64,31 @@ async function getListeStats(typeListe: TypeListe, totalBureaux: number) {
     }
   }
   const voixParParti = Array.from(voixParPartiMap.values()).sort((a, b) => b.voix - a.voix);
+  const sommeVoixSaisies = voixParParti.reduce((acc, p) => acc + p.voix, 0);
+  const coherent = votesExprimes === sommeVoixSaisies;
 
-  return { bureauxSoumis, tauxSoumission, totalVotants, totalVotesRejetes, tauxParticipation, voixParParti };
+  const siegesTotal = siegesPourListe(typeListe);
+  const quotient = quotientElectoral(totalInscrits, siegesTotal);
+  const siegesParParti = repartirSieges(voixParParti, quotient, siegesTotal);
+  const repartition = voixParParti
+    .map((p) => ({ ...p, sieges: siegesParParti.get(p.id) ?? 0 }))
+    .sort((a, b) => b.sieges - a.sieges || b.voix - a.voix);
+
+  return {
+    bureauxSoumis,
+    tauxSoumission,
+    totalInscrits,
+    totalVotants,
+    totalVotesRejetes,
+    votesExprimes,
+    tauxParticipation,
+    voixParParti,
+    sommeVoixSaisies,
+    coherent,
+    siegesTotal,
+    quotient,
+    repartition,
+  };
 }
 
 export default async function AdminDashboardPage() {
@@ -70,10 +108,9 @@ export default async function AdminDashboardPage() {
         <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
           <StatTile label={td("totalBureaux")} value={nf.format(totalBureaux)} icon={Building2} />
           <StatTile
-            label={td("bureauxSoumis")}
-            value={nf.format(stats.bureauxSoumis)}
-            sublabel={`${td("tauxSoumission")} : ${pf.format(stats.tauxSoumission)}`}
-            icon={CheckCircle2}
+            label={td("totalInscrits")}
+            value={nf.format(stats.totalInscrits)}
+            icon={UserCheck}
           />
           <StatTile
             label={td("totalVotants")}
@@ -106,7 +143,7 @@ export default async function AdminDashboardPage() {
           </p>
         </Card>
 
-        <Card className="p-4">
+        <Card className="mb-6 p-4">
           <h2 className="mb-4 text-sm font-semibold text-slate-900">{td("voixParParti")}</h2>
           {stats.voixParParti.length > 0 ? (
             <VoixBarChart data={stats.voixParParti} />
@@ -114,6 +151,73 @@ export default async function AdminDashboardPage() {
             <EmptyState icon={BarChart3} title={te("voixTitle")} description={te("voixDesc")} />
           )}
         </Card>
+
+        {stats.voixParParti.length > 0 && (
+          <>
+            <div
+              className={`mb-6 flex items-start gap-2 rounded-lg px-3.5 py-2.5 text-sm ring-1 ring-inset ${
+                stats.coherent
+                  ? "bg-emerald-50 text-emerald-800 ring-emerald-200"
+                  : "bg-amber-50 text-amber-800 ring-amber-200"
+              }`}
+            >
+              {stats.coherent ? (
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              ) : (
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              )}
+              <div>
+                <p className="font-medium">
+                  {td("coherenceTitle")} — {td("votesExprimes")} : {nf.format(stats.votesExprimes)}
+                  {" / "}
+                  {td("sommeVoixSaisies")} : {nf.format(stats.sommeVoixSaisies)}
+                </p>
+                <p className="mt-0.5">
+                  {stats.coherent ? td("coherenceOk") : td("coherenceErreur")}
+                </p>
+              </div>
+            </div>
+
+            <Card className="p-4">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <Landmark className="h-4 w-4 text-brand-600" />
+                  {td("repartitionSieges")}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  {td("quotientElectoral")} : {nf.format(Math.round(stats.quotient))} ·{" "}
+                  {td("siegesTotal")} : {stats.siegesTotal}
+                </p>
+              </div>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 text-start text-xs uppercase tracking-wide text-slate-400">
+                    <th className="pb-2 text-start font-medium">{td("parti")}</th>
+                    <th className="pb-2 text-end font-medium">{td("voix")}</th>
+                    <th className="pb-2 text-end font-medium">{td("sieges")}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {stats.repartition.map((p) => (
+                    <tr key={p.id}>
+                      <td className="py-2">
+                        <span className="flex items-center gap-2 text-slate-700">
+                          <span
+                            className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
+                            style={{ backgroundColor: p.couleur }}
+                          />
+                          {p.nom}
+                        </span>
+                      </td>
+                      <td className="py-2 text-end text-slate-700">{nf.format(p.voix)}</td>
+                      <td className="py-2 text-end font-semibold text-slate-900">{p.sieges}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          </>
+        )}
       </div>
     );
   }
