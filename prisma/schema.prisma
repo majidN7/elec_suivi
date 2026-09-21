@@ -64,7 +64,9 @@ model LieuDeVote {
 
 model BureauVote {
   id           String   @id @default(cuid())
-  code         String   @unique
+  code         String?
+  numero       String
+  commune      String
   nom          String
   inscrits     Int?
   lieuDeVoteId String
@@ -74,6 +76,7 @@ model BureauVote {
   lieuDeVote LieuDeVote @relation(fields: [lieuDeVoteId], references: [id], onDelete: Restrict)
   resultats  Resultat[]
 
+  @@unique([commune, numero])
   @@index([lieuDeVoteId])
   @@map("bureaux_de_vote")
 }
