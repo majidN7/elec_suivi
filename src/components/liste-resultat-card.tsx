@@ -39,7 +39,6 @@ export async function ListeResultatCard({
 }) {
   const ts = await getTranslations("saisie");
   const tu = await getTranslations("unlock");
-  const tp = await getTranslations("partis");
 
   const voixMap = Object.fromEntries((resultat?.voix ?? []).map((v) => [v.partiId, v.voix]));
   const isLocked = resultat?.statut === "SOUMIS";
@@ -94,7 +93,7 @@ export async function ListeResultatCard({
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{parti.code}</span>
                       <span className="block truncate text-xs text-slate-400">
-                        {parti.nom} · {tp("mandataire")}: {parti.mandataire}
+                        {parti.mandataire}
                       </span>
                     </span>
                   </span>

@@ -86,7 +86,6 @@ export function ResultatForm({
 }) {
   const ts = useTranslations("saisie");
   const tc = useTranslations("common");
-  const tp = useTranslations("partis");
 
   const [draftState, draftFormAction] = useActionState(draftAction, undefined);
   const [submitState, submitFormAction] = useActionState(submitAction, undefined);
@@ -148,9 +147,7 @@ export function ResultatForm({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-slate-700">{parti.code}</p>
-                  <p className="truncate text-xs text-slate-400">
-                    {parti.nom} · {tp("mandataire")}: {parti.mandataire}
-                  </p>
+                  <p className="truncate text-xs text-slate-400">{parti.mandataire}</p>
                 </div>
                 <div className="w-28 shrink-0">
                   <input
