@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+echo "Generating Prisma client..."
+npx prisma generate
+
 echo "Waiting for database migrations..."
 npx prisma migrate deploy
 
