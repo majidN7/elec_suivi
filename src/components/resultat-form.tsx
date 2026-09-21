@@ -9,7 +9,14 @@ import { Field, inputClass } from "@/components/ui/field";
 import { Alert } from "@/components/ui/alert";
 import type { ActionState } from "@/actions/lieux";
 
-type Parti = { id: string; code: string; nom: string; couleur: string | null };
+type Parti = {
+  id: string;
+  code: string;
+  nom: string;
+  couleur: string | null;
+  numeroListe: string;
+  mandataire: string;
+};
 type ServerAction = (state: ActionState, formData: FormData) => Promise<ActionState>;
 type FormDispatch = (formData: FormData) => void;
 
@@ -79,6 +86,7 @@ export function ResultatForm({
 }) {
   const ts = useTranslations("saisie");
   const tc = useTranslations("common");
+  const tp = useTranslations("partis");
 
   const [draftState, draftFormAction] = useActionState(draftAction, undefined);
   const [submitState, submitFormAction] = useActionState(submitAction, undefined);
@@ -135,9 +143,15 @@ export function ResultatForm({
                   className="h-3 w-3 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
                   style={{ backgroundColor: parti.couleur ?? "#94a3b8" }}
                 />
-                <span className="flex-1 truncate text-sm text-slate-700">
-                  {parti.nom}
+                <span className="w-6 shrink-0 text-center text-xs font-semibold text-slate-400">
+                  {parti.numeroListe}
                 </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-slate-700">{parti.code}</p>
+                  <p className="truncate text-xs text-slate-400">
+                    {parti.nom} · {tp("mandataire")}: {parti.mandataire}
+                  </p>
+                </div>
                 <div className="w-28 shrink-0">
                   <input
                     type="number"

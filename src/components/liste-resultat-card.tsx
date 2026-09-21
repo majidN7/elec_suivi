@@ -8,7 +8,14 @@ import { Card } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import type { TypeListe } from "@/generated/prisma/enums";
 
-type Parti = { id: string; code: string; nom: string; couleur: string | null };
+type Parti = {
+  id: string;
+  code: string;
+  nom: string;
+  couleur: string | null;
+  numeroListe: string;
+  mandataire: string;
+};
 type Resultat = {
   totalVotants: number;
   votesRejetes: number;
@@ -32,6 +39,7 @@ export async function ListeResultatCard({
 }) {
   const ts = await getTranslations("saisie");
   const tu = await getTranslations("unlock");
+  const tp = await getTranslations("partis");
 
   const voixMap = Object.fromEntries((resultat?.voix ?? []).map((v) => [v.partiId, v.voix]));
   const isLocked = resultat?.statut === "SOUMIS";
@@ -74,15 +82,25 @@ export async function ListeResultatCard({
             </div>
             <ul className="mt-3 divide-y divide-slate-100">
               {partis.map((parti) => (
-                <li key={parti.id} className="flex items-center justify-between py-2 text-sm">
-                  <span className="flex items-center gap-2 text-slate-700">
+                <li key={parti.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                  <span className="flex min-w-0 items-center gap-2 text-slate-700">
                     <span
-                      className="h-2.5 w-2.5 rounded-full ring-1 ring-inset ring-black/10"
+                      className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
                       style={{ backgroundColor: parti.couleur ?? "#94a3b8" }}
                     />
-                    {parti.nom}
+                    <span className="shrink-0 text-xs font-semibold text-slate-400">
+                      {parti.numeroListe}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{parti.code}</span>
+                      <span className="block truncate text-xs text-slate-400">
+                        {parti.nom} · {tp("mandataire")}: {parti.mandataire}
+                      </span>
+                    </span>
                   </span>
-                  <span className="font-medium text-slate-900">{voixMap[parti.id] ?? 0}</span>
+                  <span className="shrink-0 font-medium text-slate-900">
+                    {voixMap[parti.id] ?? 0}
+                  </span>
                 </li>
               ))}
             </ul>

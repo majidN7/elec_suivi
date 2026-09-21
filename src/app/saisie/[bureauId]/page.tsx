@@ -15,7 +15,7 @@ export default async function SaisieBureauPage({
   const tc = await getTranslations("common");
   const tl = await getTranslations("listes");
 
-  const [bureau, partis] = await Promise.all([
+  const [bureau, allPartis] = await Promise.all([
     prisma.bureauVote.findUnique({
       where: { id: bureauId },
       include: {
@@ -31,12 +31,34 @@ export default async function SaisieBureauPage({
         },
       },
     }),
-    prisma.partiPolitique.findMany({ orderBy: { code: "asc" } }),
+    prisma.partiPolitique.findMany({ include: { participations: true } }),
   ]);
 
   if (!bureau) {
     notFound();
   }
+
+  function partisPourListe(typeListe: "LOCALE" | "REGIONALE") {
+    return allPartis
+      .flatMap((parti) => {
+        const participation = parti.participations.find((p) => p.typeListe === typeListe);
+        if (!participation) return [];
+        return [
+          {
+            id: parti.id,
+            code: parti.code,
+            nom: parti.nom,
+            couleur: parti.couleur,
+            numeroListe: participation.numeroListe,
+            mandataire: participation.mandataire,
+          },
+        ];
+      })
+      .sort((a, b) => Number(a.numeroListe) - Number(b.numeroListe));
+  }
+
+  const partisLocale = partisPourListe("LOCALE");
+  const partisRegionale = partisPourListe("REGIONALE");
 
   const resultatLocale = bureau.resultats.find((r) => r.typeListe === "LOCALE") ?? null;
   const resultatRegionale =
@@ -47,7 +69,7 @@ export default async function SaisieBureauPage({
       <BackLink href="/saisie" label={tc("back")} />
       <PageHeader
         title={bureau.nom}
-        description={`${bureau.code} · ${bureau.lieuDeVote.nom}`}
+        description={`${bureau.commune} · N° ${bureau.numero} · ${bureau.lieuDeVote.nom}`}
       />
 
       <div className="grid gap-10 lg:grid-cols-2">
@@ -55,14 +77,14 @@ export default async function SaisieBureauPage({
           bureauId={bureauId}
           typeListe="LOCALE"
           label={tl("locale")}
-          partis={partis}
+          partis={partisLocale}
           resultat={resultatLocale}
         />
         <ListeResultatCard
           bureauId={bureauId}
           typeListe="REGIONALE"
           label={tl("regionale")}
-          partis={partis}
+          partis={partisRegionale}
           resultat={resultatRegionale}
         />
       </div>
