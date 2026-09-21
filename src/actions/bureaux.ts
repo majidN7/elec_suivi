@@ -15,9 +15,11 @@ export async function createBureau(
   const session = await requireAdmin();
 
   const parsed = bureauVoteSchema.safeParse({
-    code: formData.get("code"),
+    numero: formData.get("numero"),
+    commune: formData.get("commune"),
     nom: formData.get("nom"),
     lieuDeVoteId: formData.get("lieuDeVoteId"),
+    code: formData.get("code") || undefined,
     inscrits: formData.get("inscrits") || undefined,
   });
 
@@ -26,17 +28,19 @@ export async function createBureau(
   }
 
   const existing = await prisma.bureauVote.findUnique({
-    where: { code: parsed.data.code },
+    where: { commune_numero: { commune: parsed.data.commune, numero: parsed.data.numero } },
   });
   if (existing) {
-    return { error: "Ce code de bureau de vote existe déjà" };
+    return { error: "Un bureau avec ce numéro existe déjà dans cette commune" };
   }
 
   const bureau = await prisma.bureauVote.create({
     data: {
-      code: parsed.data.code,
+      numero: parsed.data.numero,
+      commune: parsed.data.commune,
       nom: parsed.data.nom,
       lieuDeVoteId: parsed.data.lieuDeVoteId,
+      code: parsed.data.code || null,
       inscrits: parsed.data.inscrits ?? null,
     },
   });
@@ -46,7 +50,7 @@ export async function createBureau(
     action: "CREATE",
     entite: "BureauVote",
     entiteId: bureau.id,
-    details: { code: bureau.code, nom: bureau.nom },
+    details: { numero: bureau.numero, commune: bureau.commune, nom: bureau.nom },
   });
 
   revalidatePath("/admin/bureaux");
@@ -61,9 +65,11 @@ export async function updateBureau(
   const session = await requireAdmin();
 
   const parsed = bureauVoteSchema.safeParse({
-    code: formData.get("code"),
+    numero: formData.get("numero"),
+    commune: formData.get("commune"),
     nom: formData.get("nom"),
     lieuDeVoteId: formData.get("lieuDeVoteId"),
+    code: formData.get("code") || undefined,
     inscrits: formData.get("inscrits") || undefined,
   });
 
@@ -72,18 +78,20 @@ export async function updateBureau(
   }
 
   const conflict = await prisma.bureauVote.findFirst({
-    where: { code: parsed.data.code, NOT: { id } },
+    where: { commune: parsed.data.commune, numero: parsed.data.numero, NOT: { id } },
   });
   if (conflict) {
-    return { error: "Ce code de bureau de vote existe déjà" };
+    return { error: "Un bureau avec ce numéro existe déjà dans cette commune" };
   }
 
   await prisma.bureauVote.update({
     where: { id },
     data: {
-      code: parsed.data.code,
+      numero: parsed.data.numero,
+      commune: parsed.data.commune,
       nom: parsed.data.nom,
       lieuDeVoteId: parsed.data.lieuDeVoteId,
+      code: parsed.data.code || null,
       inscrits: parsed.data.inscrits ?? null,
     },
   });

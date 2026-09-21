@@ -17,9 +17,11 @@ export function BureauForm({
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   lieux: { id: string; code: string; nom: string }[];
   defaultValues?: {
-    code: string;
+    numero: string;
+    commune: string;
     nom: string;
     lieuDeVoteId: string;
+    code: string | null;
     inscrits: number | null;
   };
 }) {
@@ -30,12 +32,31 @@ export function BureauForm({
   return (
     <Card className="max-w-lg p-6">
       <form action={formAction} className="space-y-4">
-        <Field label={t("code")} htmlFor="code" required>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label={t("numero")} htmlFor="numero" required>
+            <input
+              id="numero"
+              name="numero"
+              required
+              defaultValue={defaultValues?.numero}
+              className={inputClass}
+            />
+          </Field>
+          <Field label={t("commune")} htmlFor="commune" required>
+            <input
+              id="commune"
+              name="commune"
+              required
+              defaultValue={defaultValues?.commune}
+              className={inputClass}
+            />
+          </Field>
+        </div>
+        <Field label={t("code")} htmlFor="code" hint={t("codeHint")}>
           <input
             id="code"
             name="code"
-            required
-            defaultValue={defaultValues?.code}
+            defaultValue={defaultValues?.code ?? undefined}
             className={inputClass}
           />
         </Field>

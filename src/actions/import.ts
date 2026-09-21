@@ -16,10 +16,12 @@ export type ImportState =
   | undefined;
 
 const bureauRowSchema = z.object({
-  code: z.string().trim().min(1, "code manquant"),
+  numero: z.string().trim().min(1, "numero manquant"),
+  commune: z.string().trim().min(1, "commune manquante"),
   nom: z.string().trim().min(1, "nom manquant"),
   lieuDeVoteCode: z.string().trim().min(1, "lieuDeVoteCode manquant"),
   lieuDeVoteNom: z.string().trim().optional(),
+  code: z.string().trim().optional(),
   inscrits: z
     .string()
     .trim()
@@ -83,16 +85,21 @@ export async function importBureaux(
       });
 
       await prisma.bureauVote.upsert({
-        where: { code: parsed.data.code },
+        where: {
+          commune_numero: { commune: parsed.data.commune, numero: parsed.data.numero },
+        },
         update: {
           nom: parsed.data.nom,
           lieuDeVoteId: lieu.id,
+          code: parsed.data.code || null,
           inscrits: parsed.data.inscrits ?? null,
         },
         create: {
-          code: parsed.data.code,
+          numero: parsed.data.numero,
+          commune: parsed.data.commune,
           nom: parsed.data.nom,
           lieuDeVoteId: lieu.id,
+          code: parsed.data.code || null,
           inscrits: parsed.data.inscrits ?? null,
         },
       });

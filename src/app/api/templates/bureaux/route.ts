@@ -1,8 +1,8 @@
 import { requireAdmin } from "@/lib/auth-helpers";
 
-const CSV = `code,nom,lieuDeVoteCode,lieuDeVoteNom,inscrits
-BV-001,Bureau 1,LV-001,Ecole Al Massira,850
-BV-002,Bureau 2,LV-001,Ecole Al Massira,780
+const CSV = `numero,commune,nom,lieuDeVoteCode,lieuDeVoteNom,inscrits,code
+1,Dakhla,Ecole Al Massira salle 1,LV-001,Ecole Al Massira,850,
+2,Dakhla,Ecole Al Massira salle 2,LV-001,Ecole Al Massira,780,
 `;
 
 export async function GET() {

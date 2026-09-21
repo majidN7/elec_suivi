@@ -7,9 +7,11 @@ export const lieuDeVoteSchema = z.object({
 });
 
 export const bureauVoteSchema = z.object({
-  code: z.string().trim().min(1, "Le code est requis").max(50),
+  numero: z.string().trim().min(1, "Le numéro du bureau est requis").max(50),
+  commune: z.string().trim().min(1, "La commune est requise").max(200),
   nom: z.string().trim().min(1, "Le nom est requis").max(200),
   lieuDeVoteId: z.string().trim().min(1, "Le lieu de vote est requis"),
+  code: z.string().trim().max(50).optional().or(z.literal("")),
   inscrits: z.coerce.number().int().min(0).optional().nullable(),
 });
 
