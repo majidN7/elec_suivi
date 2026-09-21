@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListeStatusBadges } from "@/components/liste-status-badges";
 import { Table, Thead, Th, Tbody, Tr, Td } from "@/components/ui/table";
 import { inputClass } from "@/components/ui/field";
+import { bureauSearchWhere } from "@/lib/bureau-search";
 
 const PAGE_SIZE = 25;
 
@@ -32,20 +33,13 @@ export default async function SaisiePage({ searchParams }: PageProps<"/saisie">)
   const pageParam = typeof params.page === "string" ? parseInt(params.page, 10) : 1;
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 
-  const where = q
-    ? {
-        OR: [
-          { code: { contains: q, mode: "insensitive" as const } },
-          { nom: { contains: q, mode: "insensitive" as const } },
-        ],
-      }
-    : {};
+  const where = bureauSearchWhere(q);
 
   const [bureaux, total] = await Promise.all([
     prisma.bureauVote.findMany({
       where,
       include: { lieuDeVote: true, resultats: true },
-      orderBy: { code: "asc" },
+      orderBy: [{ commune: "asc" }, { numero: "asc" }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
@@ -90,8 +84,9 @@ export default async function SaisiePage({ searchParams }: PageProps<"/saisie">)
         <>
           <Table>
             <Thead>
-              <Th>{tg("code")}</Th>
-              <Th>{tg("bureauDeVote")}</Th>
+              <Th>{tg("numero")}</Th>
+              <Th>{tg("commune")}</Th>
+              <Th>{tg("bureauEcole")}</Th>
               <Th>{tg("lieuDeVote")}</Th>
               <Th>{tc("status")}</Th>
               <Th>{tc("actions")}</Th>
@@ -99,7 +94,8 @@ export default async function SaisiePage({ searchParams }: PageProps<"/saisie">)
             <Tbody>
               {bureaux.map((bureauVote) => (
                 <Tr key={bureauVote.id}>
-                  <Td className="font-mono text-xs text-slate-500">{bureauVote.code}</Td>
+                  <Td className="font-mono text-xs text-slate-500">{bureauVote.numero}</Td>
+                  <Td className="text-slate-700">{bureauVote.commune}</Td>
                   <Td className="font-medium text-slate-900">{bureauVote.nom}</Td>
                   <Td className="text-slate-500">{bureauVote.lieuDeVote.nom}</Td>
                   <Td>

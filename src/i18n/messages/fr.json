@@ -80,6 +80,7 @@
     "codeHint": "ancien code interne, facultatif — non utilisé pour la recherche",
     "numero": "N° Bureau",
     "commune": "Commune",
+    "bureauEcole": "Bureau de vote / École",
     "nom": "Nom",
     "adresse": "Adresse",
     "inscrits": "Inscrits",
@@ -94,7 +95,7 @@
   "saisie": {
     "title": "Saisie des résultats",
     "rechercheTitre": "Rechercher un bureau de vote",
-    "rechercherPlaceholder": "Rechercher par code ou nom de bureau...",
+    "rechercherPlaceholder": "Rechercher par numéro, commune ou nom du bureau (ex : 5 - Dakhla)...",
     "resultatsTrouves": "{count} bureau(x) trouvé(s)",
     "totalVotants": "Nombre total de votants",
     "votesRejetes": "Votes rejetés (nuls/blancs)",

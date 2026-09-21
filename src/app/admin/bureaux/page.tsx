@@ -19,7 +19,7 @@ export default async function BureauxPage() {
   const tl = await getTranslations("listes");
 
   const bureaux = await prisma.bureauVote.findMany({
-    orderBy: { code: "asc" },
+    orderBy: [{ commune: "asc" }, { numero: "asc" }],
     include: { lieuDeVote: true, resultats: true },
   });
 
@@ -52,20 +52,20 @@ export default async function BureauxPage() {
       ) : (
         <Table>
           <Thead>
-            <Th>{t("code")}</Th>
-            <Th>{t("nom")}</Th>
+            <Th>{t("numero")}</Th>
+            <Th>{t("commune")}</Th>
+            <Th>{t("bureauEcole")}</Th>
             <Th>{t("lieuDeVote")}</Th>
-            <Th>{t("inscrits")}</Th>
             <Th>{tc("status")}</Th>
             <Th>{tc("actions")}</Th>
           </Thead>
           <Tbody>
             {bureaux.map((bureau) => (
               <Tr key={bureau.id}>
-                <Td className="font-mono text-xs text-slate-500">{bureau.code}</Td>
+                <Td className="font-mono text-xs text-slate-500">{bureau.numero}</Td>
+                <Td className="text-slate-700">{bureau.commune}</Td>
                 <Td className="font-medium text-slate-900">{bureau.nom}</Td>
                 <Td className="text-slate-500">{bureau.lieuDeVote.nom}</Td>
-                <Td>{bureau.inscrits ?? "—"}</Td>
                 <Td>
                   <ListeStatusBadges resultats={bureau.resultats} labels={statusLabels} />
                 </Td>
