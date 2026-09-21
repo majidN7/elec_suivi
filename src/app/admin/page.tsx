@@ -22,7 +22,7 @@ import type { TypeListe } from "@/generated/prisma/enums";
 const nf = new Intl.NumberFormat("fr-FR");
 const pf = new Intl.NumberFormat("fr-FR", { style: "percent", maximumFractionDigits: 1 });
 
-async function getListeStats(typeListe: TypeListe, totalBureaux: number) {
+async function getListeStats(typeListe: TypeListe, totalBureaux: number, totalInscrits: number) {
   const [resultatsSoumis, voixRows] = await Promise.all([
     prisma.resultat.findMany({
       where: { statut: "SOUMIS", typeListe },
@@ -37,10 +37,6 @@ async function getListeStats(typeListe: TypeListe, totalBureaux: number) {
   const bureauxSoumis = resultatsSoumis.length;
   const tauxSoumission = totalBureaux > 0 ? bureauxSoumis / totalBureaux : 0;
 
-  const totalInscrits = resultatsSoumis.reduce(
-    (acc, r) => acc + (r.bureauVote.inscrits ?? 0),
-    0,
-  );
   const totalVotants = resultatsSoumis.reduce((acc, r) => acc + r.totalVotants, 0);
   const totalVotesRejetes = resultatsSoumis.reduce((acc, r) => acc + r.votesRejetes, 0);
   const tauxParticipation = totalInscrits > 0 ? totalVotants / totalInscrits : 0;
@@ -96,10 +92,15 @@ export default async function AdminDashboardPage() {
   const te = await getTranslations("empty");
   const tl = await getTranslations("listes");
 
-  const totalBureaux = await prisma.bureauVote.count();
+  const [totalBureaux, inscritsAgg] = await Promise.all([
+    prisma.bureauVote.count(),
+    prisma.bureauVote.aggregate({ _sum: { inscrits: true } }),
+  ]);
+  const totalInscrits = inscritsAgg._sum.inscrits ?? 0;
+
   const [localeStats, regionaleStats] = await Promise.all([
-    getListeStats("LOCALE", totalBureaux),
-    getListeStats("REGIONALE", totalBureaux),
+    getListeStats("LOCALE", totalBureaux, totalInscrits),
+    getListeStats("REGIONALE", totalBureaux, totalInscrits),
   ]);
 
   function renderListeContent(stats: Awaited<ReturnType<typeof getListeStats>>) {

@@ -130,6 +130,7 @@ export async function importBureaux(
 
   revalidatePath("/admin/bureaux");
   revalidatePath("/admin/lieux");
+  revalidatePath("/admin");
   return { importedCount, errors };
 }
 

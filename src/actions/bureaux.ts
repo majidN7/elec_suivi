@@ -54,6 +54,7 @@ export async function createBureau(
   });
 
   revalidatePath("/admin/bureaux");
+  revalidatePath("/admin");
   redirect("/admin/bureaux");
 }
 
@@ -105,6 +106,7 @@ export async function updateBureau(
   });
 
   revalidatePath("/admin/bureaux");
+  revalidatePath("/admin");
   redirect("/admin/bureaux");
 }
 
@@ -130,4 +132,5 @@ export async function deleteBureau(id: string) {
   });
 
   revalidatePath("/admin/bureaux");
+  revalidatePath("/admin");
 }
