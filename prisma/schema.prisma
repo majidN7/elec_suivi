@@ -89,9 +89,25 @@ model PartiPolitique {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  voix ResultatVoixParti[]
+  voix           ResultatVoixParti[]
+  participations ParticipationListe[]
 
   @@map("partis_politiques")
+}
+
+model ParticipationListe {
+  id          String    @id @default(cuid())
+  partiId     String
+  typeListe   TypeListe
+  numeroListe String
+  mandataire  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  parti PartiPolitique @relation(fields: [partiId], references: [id], onDelete: Cascade)
+
+  @@unique([partiId, typeListe])
+  @@map("participations_liste")
 }
 
 model Resultat {
