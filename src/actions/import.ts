@@ -32,17 +32,28 @@ const bureauRowSchema = z.object({
     }),
 });
 
-const partiRowSchema = z.object({
-  code: z.string().trim().min(1, "code manquant"),
-  nom: z.string().trim().min(1, "nom manquant"),
-  couleur: z
-    .string()
-    .trim()
-    .optional()
-    .refine((v) => !v || /^#[0-9a-fA-F]{6}$/.test(v), {
-      message: "couleur invalide (format #RRGGBB)",
-    }),
-});
+const partiRowSchema = z
+  .object({
+    code: z.string().trim().min(1, "code manquant"),
+    nom: z.string().trim().min(1, "nom manquant"),
+    couleur: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => !v || /^#[0-9a-fA-F]{6}$/.test(v), {
+        message: "couleur invalide (format #RRGGBB)",
+      }),
+    numeroListeLocale: z.string().trim().optional(),
+    mandataireLocale: z.string().trim().optional(),
+    numeroListeRegionale: z.string().trim().optional(),
+    mandataireRegionale: z.string().trim().optional(),
+  })
+  .refine((v) => Boolean(v.numeroListeLocale) === Boolean(v.mandataireLocale), {
+    message: "numeroListeLocale et mandataireLocale doivent être renseignés ensemble",
+  })
+  .refine((v) => Boolean(v.numeroListeRegionale) === Boolean(v.mandataireRegionale), {
+    message: "numeroListeRegionale et mandataireRegionale doivent être renseignés ensemble",
+  });
 
 export async function importBureaux(
   _prevState: ImportState,
@@ -153,7 +164,7 @@ export async function importPartis(
     }
 
     try {
-      await prisma.partiPolitique.upsert({
+      const parti = await prisma.partiPolitique.upsert({
         where: { code: parsed.data.code },
         update: {
           nom: parsed.data.nom,
@@ -165,6 +176,23 @@ export async function importPartis(
           couleur: parsed.data.couleur || null,
         },
       });
+
+      for (const [typeListe, numeroListe, mandataire] of [
+        ["LOCALE", parsed.data.numeroListeLocale, parsed.data.mandataireLocale],
+        ["REGIONALE", parsed.data.numeroListeRegionale, parsed.data.mandataireRegionale],
+      ] as const) {
+        if (numeroListe && mandataire) {
+          await prisma.participationListe.upsert({
+            where: { partiId_typeListe: { partiId: parti.id, typeListe } },
+            update: { numeroListe, mandataire },
+            create: { partiId: parti.id, typeListe, numeroListe, mandataire },
+          });
+        } else {
+          await prisma.participationListe.deleteMany({
+            where: { partiId: parti.id, typeListe },
+          });
+        }
+      }
 
       importedCount++;
     } catch {

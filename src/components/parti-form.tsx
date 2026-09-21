@@ -14,11 +14,20 @@ export function PartiForm({
   defaultValues,
 }: {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
-  defaultValues?: { code: string; nom: string; couleur: string | null };
+  defaultValues?: {
+    code: string;
+    nom: string;
+    couleur: string | null;
+    numeroListeLocale?: string;
+    mandataireLocale?: string;
+    numeroListeRegionale?: string;
+    mandataireRegionale?: string;
+  };
 }) {
   const [state, formAction] = useActionState(action, undefined);
   const t = useTranslations("geo");
   const tp = useTranslations("partis");
+  const tl = useTranslations("listes");
   const tc = useTranslations("common");
 
   return (
@@ -51,6 +60,50 @@ export function PartiForm({
             className="h-10 w-20 cursor-pointer rounded-lg border border-slate-300 p-1"
           />
         </Field>
+
+        <div className="space-y-3 rounded-lg border border-slate-200 p-4">
+          <p className="text-sm font-medium text-slate-700">{tl("locale")}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={tp("numeroListe")} htmlFor="numeroListeLocale">
+              <input
+                id="numeroListeLocale"
+                name="numeroListeLocale"
+                defaultValue={defaultValues?.numeroListeLocale}
+                className={inputClass}
+              />
+            </Field>
+            <Field label={tp("mandataire")} htmlFor="mandataireLocale">
+              <input
+                id="mandataireLocale"
+                name="mandataireLocale"
+                defaultValue={defaultValues?.mandataireLocale}
+                className={inputClass}
+              />
+            </Field>
+          </div>
+        </div>
+
+        <div className="space-y-3 rounded-lg border border-slate-200 p-4">
+          <p className="text-sm font-medium text-slate-700">{tl("regionale")}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={tp("numeroListe")} htmlFor="numeroListeRegionale">
+              <input
+                id="numeroListeRegionale"
+                name="numeroListeRegionale"
+                defaultValue={defaultValues?.numeroListeRegionale}
+                className={inputClass}
+              />
+            </Field>
+            <Field label={tp("mandataire")} htmlFor="mandataireRegionale">
+              <input
+                id="mandataireRegionale"
+                name="mandataireRegionale"
+                defaultValue={defaultValues?.mandataireRegionale}
+                className={inputClass}
+              />
+            </Field>
+          </div>
+        </div>
 
         {state?.error && <Alert variant="error">{state.error}</Alert>}
 

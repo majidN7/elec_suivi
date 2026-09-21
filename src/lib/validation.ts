@@ -15,16 +15,30 @@ export const bureauVoteSchema = z.object({
   inscrits: z.coerce.number().int().min(0).optional().nullable(),
 });
 
-export const partiPolitiqueSchema = z.object({
-  code: z.string().trim().min(1, "Le code est requis").max(50),
-  nom: z.string().trim().min(1, "Le nom est requis").max(200),
-  couleur: z
-    .string()
-    .trim()
-    .regex(/^#[0-9a-fA-F]{6}$/, "Couleur invalide (format #RRGGBB)")
-    .optional()
-    .or(z.literal("")),
-});
+export const partiPolitiqueSchema = z
+  .object({
+    code: z.string().trim().min(1, "Le code est requis").max(50),
+    nom: z.string().trim().min(1, "Le nom est requis").max(200),
+    couleur: z
+      .string()
+      .trim()
+      .regex(/^#[0-9a-fA-F]{6}$/, "Couleur invalide (format #RRGGBB)")
+      .optional()
+      .or(z.literal("")),
+    numeroListeLocale: z.string().trim().max(50).optional().or(z.literal("")),
+    mandataireLocale: z.string().trim().max(200).optional().or(z.literal("")),
+    numeroListeRegionale: z.string().trim().max(50).optional().or(z.literal("")),
+    mandataireRegionale: z.string().trim().max(200).optional().or(z.literal("")),
+  })
+  .refine((v) => Boolean(v.numeroListeLocale) === Boolean(v.mandataireLocale), {
+    message: "Liste locale : le numéro de liste et le mandataire doivent être renseignés ensemble",
+    path: ["numeroListeLocale"],
+  })
+  .refine((v) => Boolean(v.numeroListeRegionale) === Boolean(v.mandataireRegionale), {
+    message:
+      "Liste régionale : le numéro de liste et le mandataire doivent être renseignés ensemble",
+    path: ["numeroListeRegionale"],
+  });
 
 export const userSchema = z.object({
   name: z.string().trim().min(1, "Le nom est requis").max(200),

@@ -7,6 +7,24 @@ import { requireAdmin } from "@/lib/auth-helpers";
 import { partiPolitiqueSchema } from "@/lib/validation";
 import { logAudit } from "@/lib/audit";
 import type { ActionState } from "@/actions/lieux";
+import type { TypeListe } from "@/generated/prisma/enums";
+
+async function syncParticipation(
+  partiId: string,
+  typeListe: TypeListe,
+  numeroListe: string,
+  mandataire: string,
+) {
+  if (numeroListe && mandataire) {
+    await prisma.participationListe.upsert({
+      where: { partiId_typeListe: { partiId, typeListe } },
+      update: { numeroListe, mandataire },
+      create: { partiId, typeListe, numeroListe, mandataire },
+    });
+  } else {
+    await prisma.participationListe.deleteMany({ where: { partiId, typeListe } });
+  }
+}
 
 export async function createParti(
   _prevState: ActionState,
@@ -18,6 +36,10 @@ export async function createParti(
     code: formData.get("code"),
     nom: formData.get("nom"),
     couleur: formData.get("couleur"),
+    numeroListeLocale: formData.get("numeroListeLocale"),
+    mandataireLocale: formData.get("mandataireLocale"),
+    numeroListeRegionale: formData.get("numeroListeRegionale"),
+    mandataireRegionale: formData.get("mandataireRegionale"),
   });
 
   if (!parsed.success) {
@@ -38,6 +60,19 @@ export async function createParti(
       couleur: parsed.data.couleur || null,
     },
   });
+
+  await syncParticipation(
+    parti.id,
+    "LOCALE",
+    parsed.data.numeroListeLocale ?? "",
+    parsed.data.mandataireLocale ?? "",
+  );
+  await syncParticipation(
+    parti.id,
+    "REGIONALE",
+    parsed.data.numeroListeRegionale ?? "",
+    parsed.data.mandataireRegionale ?? "",
+  );
 
   await logAudit({
     userId: session.user.id,
@@ -62,6 +97,10 @@ export async function updateParti(
     code: formData.get("code"),
     nom: formData.get("nom"),
     couleur: formData.get("couleur"),
+    numeroListeLocale: formData.get("numeroListeLocale"),
+    mandataireLocale: formData.get("mandataireLocale"),
+    numeroListeRegionale: formData.get("numeroListeRegionale"),
+    mandataireRegionale: formData.get("mandataireRegionale"),
   });
 
   if (!parsed.success) {
@@ -83,6 +122,19 @@ export async function updateParti(
       couleur: parsed.data.couleur || null,
     },
   });
+
+  await syncParticipation(
+    id,
+    "LOCALE",
+    parsed.data.numeroListeLocale ?? "",
+    parsed.data.mandataireLocale ?? "",
+  );
+  await syncParticipation(
+    id,
+    "REGIONALE",
+    parsed.data.numeroListeRegionale ?? "",
+    parsed.data.mandataireRegionale ?? "",
+  );
 
   await logAudit({
     userId: session.user.id,

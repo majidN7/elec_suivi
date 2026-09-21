@@ -90,7 +90,10 @@
   "partis": {
     "title": "Partis politiques",
     "nouveauParti": "Nouveau parti",
-    "couleur": "Couleur"
+    "couleur": "Couleur",
+    "numeroListe": "N° de liste",
+    "mandataire": "Mandataire (الوكيل)",
+    "listes": "Listes"
   },
   "saisie": {
     "title": "Saisie des résultats",

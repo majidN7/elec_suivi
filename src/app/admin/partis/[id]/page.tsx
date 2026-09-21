@@ -12,10 +12,16 @@ export default async function EditPartiPage({
   const { id } = await params;
   const tc = await getTranslations("common");
 
-  const parti = await prisma.partiPolitique.findUnique({ where: { id } });
+  const parti = await prisma.partiPolitique.findUnique({
+    where: { id },
+    include: { participations: true },
+  });
   if (!parti) {
     notFound();
   }
+
+  const locale = parti.participations.find((p) => p.typeListe === "LOCALE");
+  const regionale = parti.participations.find((p) => p.typeListe === "REGIONALE");
 
   const action = updateParti.bind(null, id);
 
@@ -23,7 +29,18 @@ export default async function EditPartiPage({
     <div>
       <BackLink href="/admin/partis" label={tc("back")} />
       <PageHeader title={`Parti — ${parti.nom}`} />
-      <PartiForm action={action} defaultValues={parti} />
+      <PartiForm
+        action={action}
+        defaultValues={{
+          code: parti.code,
+          nom: parti.nom,
+          couleur: parti.couleur,
+          numeroListeLocale: locale?.numeroListe ?? "",
+          mandataireLocale: locale?.mandataire ?? "",
+          numeroListeRegionale: regionale?.numeroListe ?? "",
+          mandataireRegionale: regionale?.mandataire ?? "",
+        }}
+      />
     </div>
   );
 }
