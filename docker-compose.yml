@@ -25,13 +25,16 @@ services:
     environment:
       DATABASE_URL: postgresql://elec_app:${POSTGRES_PASSWORD:-elec_app_dev_pw}@db:5432/elec_suivi?schema=public
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?Set NEXTAUTH_SECRET in your .env file (openssl rand -base64 32)}
-      # The "localhost" fallback below is only correct when this container is
-      # accessed as localhost (e.g. local dev, or an SSH tunnel). On a real
-      # server, set NEXTAUTH_URL in your .env to the URL users actually type
-      # in their browser (http://<server-ip>:3000 or your domain) — otherwise
-      # sign-in/out redirects and the callback cookie will point at each
-      # visitor's own machine instead of this server. See .env.example.
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      # Auth.js builds every absolute URL it emits (post-login redirect,
+      # post-logout redirect, the callback-url cookie) from this value
+      # verbatim — it does NOT look at the incoming request's Host header.
+      # A silent "localhost" fallback here previously caused sign-in/out to
+      # send every visitor's browser to their OWN machine instead of back to
+      # this server, which looks like "the buttons do nothing". Required on
+      # purpose so a forgotten override fails loudly instead of silently.
+      # Set it in your .env to the URL users actually type in their browser
+      # (http://<server-ip>:3000 or your domain). See .env.example.
+      NEXTAUTH_URL: ${NEXTAUTH_URL:?Set NEXTAUTH_URL in your .env file to this server's real public URL, e.g. http://<server-ip>:3000 — see .env.example}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@elec-suivi.local}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-ChangeMe123!}
     ports:
