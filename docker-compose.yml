@@ -37,8 +37,10 @@ services:
       NEXTAUTH_URL: ${NEXTAUTH_URL:?Set NEXTAUTH_URL in your .env file to this server's real public URL, e.g. http://<server-ip>:3000 — see .env.example}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@elec-suivi.local}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-ChangeMe123!}
-    ports:
-      - "3000:3000"
+    # No public port here on purpose once Caddy is in front: the app is only
+    # reachable via the "caddy" service below (over HTTPS), reached from it
+    # through Docker's internal network by service name (app:3000) — no
+    # published host port is needed for that.
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s
@@ -46,5 +48,26 @@ services:
       retries: 5
       start_period: 30s
 
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      # No real domain? Use a free auto-resolving hostname for your IP,
+      # e.g. for 148.113.249.182 use "148-113-249-182.sslip.io" (replace the
+      # dots with dashes, append .sslip.io) — Let's Encrypt can issue a
+      # normal, browser-trusted certificate for it, unlike for a bare IP.
+      SITE_ADDRESS: ${SITE_ADDRESS:?Set SITE_ADDRESS in your .env, e.g. 148-113-249-182.sslip.io or your own domain — see .env.example}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   db_data:
+  caddy_data:
+  caddy_config:
