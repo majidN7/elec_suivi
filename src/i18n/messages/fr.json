@@ -69,7 +69,10 @@
     "repartitionSieges": "Répartition des sièges",
     "parti": "Parti",
     "voix": "Voix",
-    "sieges": "Sièges"
+    "sieges": "Sièges",
+    "conforme": "Conforme",
+    "nonConforme": "Non conforme",
+    "ecartVoix": "Écart : {count} voix"
   },
   "geo": {
     "lieuDeVote": "Lieu de vote",

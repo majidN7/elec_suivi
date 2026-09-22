@@ -64,6 +64,10 @@ export const resultatSchema = z
       }),
     ),
   })
+  .refine((data) => data.votesRejetes <= data.totalVotants, {
+    message: "Le nombre de bulletins nuls ne peut pas dépasser le nombre de votants",
+    path: ["votesRejetes"],
+  })
   .refine(
     (data) => {
       const sommeVoix = data.voix.reduce((acc, v) => acc + v.voix, 0);

@@ -1,6 +1,6 @@
 const SIEGES_PAR_LISTE = {
-  LOCALE: 3,
-  REGIONALE: 2,
+  LOCALE: 2,
+  REGIONALE: 3,
 } as const;
 
 export function siegesPourListe(typeListe: keyof typeof SIEGES_PAR_LISTE): number {
@@ -9,6 +9,22 @@ export function siegesPourListe(typeListe: keyof typeof SIEGES_PAR_LISTE): numbe
 
 export function quotientElectoral(totalInscrits: number, totalSieges: number): number {
   return totalSieges > 0 ? totalInscrits / totalSieges : 0;
+}
+
+/**
+ * Voix exprimées (VE = Votants − Bulletins nuls) et contrôle de cohérence
+ * face à la somme des voix par parti réellement saisies/importées en base.
+ * Source de vérité unique pour ce calcul (dashboard + tests).
+ */
+export function calculerCoherenceVoix(
+  totalVotants: number,
+  totalVotesRejetes: number,
+  sommeVoixPartis: number,
+) {
+  const votesExprimes = totalVotants - totalVotesRejetes;
+  const ecart = Math.abs(votesExprimes - sommeVoixPartis);
+  const conforme = votesExprimes === sommeVoixPartis;
+  return { votesExprimes, sommeVoixPartis, ecart, conforme };
 }
 
 /**

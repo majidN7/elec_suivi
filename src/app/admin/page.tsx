@@ -7,7 +7,7 @@ import {
   BarChart3,
   Landmark,
   CheckCircle2,
-  AlertTriangle,
+  Vote,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StatTile } from "@/components/stat-tile";
@@ -16,7 +16,12 @@ import { ListeTabs } from "@/components/liste-tabs";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
-import { siegesPourListe, quotientElectoral, repartirSieges } from "@/lib/seats";
+import {
+  siegesPourListe,
+  quotientElectoral,
+  repartirSieges,
+  calculerCoherenceVoix,
+} from "@/lib/seats";
 import { intlLocale, type Locale } from "@/i18n/config";
 import type { TypeListe } from "@/generated/prisma/enums";
 
@@ -38,7 +43,6 @@ async function getListeStats(typeListe: TypeListe, totalBureaux: number, totalIn
   const totalVotants = resultatsSoumis.reduce((acc, r) => acc + r.totalVotants, 0);
   const totalVotesRejetes = resultatsSoumis.reduce((acc, r) => acc + r.votesRejetes, 0);
   const tauxParticipation = totalInscrits > 0 ? totalVotants / totalInscrits : 0;
-  const votesExprimes = totalVotants - totalVotesRejetes;
 
   const voixParPartiMap = new Map<
     string,
@@ -59,7 +63,11 @@ async function getListeStats(typeListe: TypeListe, totalBureaux: number, totalIn
   }
   const voixParParti = Array.from(voixParPartiMap.values()).sort((a, b) => b.voix - a.voix);
   const sommeVoixSaisies = voixParParti.reduce((acc, p) => acc + p.voix, 0);
-  const coherent = votesExprimes === sommeVoixSaisies;
+  const { votesExprimes, ecart, conforme } = calculerCoherenceVoix(
+    totalVotants,
+    totalVotesRejetes,
+    sommeVoixSaisies,
+  );
 
   const siegesTotal = siegesPourListe(typeListe);
   const quotient = quotientElectoral(totalInscrits, siegesTotal);
@@ -78,7 +86,8 @@ async function getListeStats(typeListe: TypeListe, totalBureaux: number, totalIn
     tauxParticipation,
     voixParParti,
     sommeVoixSaisies,
-    coherent,
+    ecart,
+    conforme,
     siegesTotal,
     quotient,
     repartition,
@@ -107,7 +116,7 @@ export default async function AdminDashboardPage() {
   function renderListeContent(stats: Awaited<ReturnType<typeof getListeStats>>) {
     return (
       <div>
-        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
           <StatTile label={td("totalBureaux")} value={nf.format(totalBureaux)} icon={Building2} />
           <StatTile
             label={td("totalInscrits")}
@@ -124,6 +133,37 @@ export default async function AdminDashboardPage() {
             label={td("votesRejetes")}
             value={nf.format(stats.totalVotesRejetes)}
             icon={XCircle}
+          />
+          <StatTile
+            label={td("votesExprimes")}
+            value={nf.format(stats.votesExprimes)}
+            icon={Vote}
+            sublabel={
+              <div
+                className={`flex flex-col gap-0.5 ${
+                  stats.conforme ? "text-emerald-600" : "text-rose-600"
+                }`}
+              >
+                <span className="flex items-center gap-1">
+                  {stats.conforme ? (
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  ) : (
+                    <XCircle className="h-3.5 w-3.5 shrink-0" />
+                  )}
+                  {td("sommeVoixSaisies")} : {nf.format(stats.sommeVoixSaisies)}
+                </span>
+                <span className="flex items-center gap-1">
+                  {stats.conforme ? (
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  ) : (
+                    <XCircle className="h-3.5 w-3.5 shrink-0" />
+                  )}
+                  {stats.conforme
+                    ? td("conforme")
+                    : `${td("nonConforme")} — ${td("ecartVoix", { count: nf.format(stats.ecart) })}`}
+                </span>
+              </div>
+            }
           />
         </div>
 
@@ -155,70 +195,44 @@ export default async function AdminDashboardPage() {
         </Card>
 
         {stats.voixParParti.length > 0 && (
-          <>
-            <div
-              className={`mb-6 flex items-start gap-2 rounded-lg px-3.5 py-2.5 text-sm ring-1 ring-inset ${
-                stats.coherent
-                  ? "bg-emerald-50 text-emerald-800 ring-emerald-200"
-                  : "bg-amber-50 text-amber-800 ring-amber-200"
-              }`}
-            >
-              {stats.coherent ? (
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              ) : (
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              )}
-              <div>
-                <p className="font-medium">
-                  {td("coherenceTitle")} — {td("votesExprimes")} : {nf.format(stats.votesExprimes)}
-                  {" / "}
-                  {td("sommeVoixSaisies")} : {nf.format(stats.sommeVoixSaisies)}
-                </p>
-                <p className="mt-0.5">
-                  {stats.coherent ? td("coherenceOk") : td("coherenceErreur")}
-                </p>
-              </div>
+          <Card className="p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <Landmark className="h-4 w-4 text-brand-600" />
+                {td("repartitionSieges")}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {td("quotientElectoral")} : {nf.format(Math.round(stats.quotient))} ·{" "}
+                {td("siegesTotal")} : {stats.siegesTotal}
+              </p>
             </div>
-
-            <Card className="p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                  <Landmark className="h-4 w-4 text-brand-600" />
-                  {td("repartitionSieges")}
-                </h2>
-                <p className="text-xs text-slate-500">
-                  {td("quotientElectoral")} : {nf.format(Math.round(stats.quotient))} ·{" "}
-                  {td("siegesTotal")} : {stats.siegesTotal}
-                </p>
-              </div>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-100 text-start text-xs uppercase tracking-wide text-slate-400">
-                    <th className="pb-2 text-start font-medium">{td("parti")}</th>
-                    <th className="pb-2 text-end font-medium">{td("voix")}</th>
-                    <th className="pb-2 text-end font-medium">{td("sieges")}</th>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-start text-xs uppercase tracking-wide text-slate-400">
+                  <th className="pb-2 text-start font-medium">{td("parti")}</th>
+                  <th className="pb-2 text-end font-medium">{td("voix")}</th>
+                  <th className="pb-2 text-end font-medium">{td("sieges")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {stats.repartition.map((p) => (
+                  <tr key={p.id}>
+                    <td className="py-2">
+                      <span className="flex items-center gap-2 text-slate-700">
+                        <span
+                          className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
+                          style={{ backgroundColor: p.couleur }}
+                        />
+                        {p.nom}
+                      </span>
+                    </td>
+                    <td className="py-2 text-end text-slate-700">{nf.format(p.voix)}</td>
+                    <td className="py-2 text-end font-semibold text-slate-900">{p.sieges}</td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {stats.repartition.map((p) => (
-                    <tr key={p.id}>
-                      <td className="py-2">
-                        <span className="flex items-center gap-2 text-slate-700">
-                          <span
-                            className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
-                            style={{ backgroundColor: p.couleur }}
-                          />
-                          {p.nom}
-                        </span>
-                      </td>
-                      <td className="py-2 text-end text-slate-700">{nf.format(p.voix)}</td>
-                      <td className="py-2 text-end font-semibold text-slate-900">{p.sieges}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Card>
-          </>
+                ))}
+              </tbody>
+            </table>
+          </Card>
         )}
       </div>
     );

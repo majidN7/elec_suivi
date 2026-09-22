@@ -69,7 +69,10 @@
     "parti": "الحزب",
     "voix": "الأصوات",
     "sieges": "المقاعد",
-    "progressionSaisie": "تقدم الإدخال"
+    "progressionSaisie": "تقدم الإدخال",
+    "conforme": "مطابق",
+    "nonConforme": "غير مطابق",
+    "ecartVoix": "الفارق: {count} صوت"
   },
   "geo": {
     "lieuDeVote": "مركز التصويت",

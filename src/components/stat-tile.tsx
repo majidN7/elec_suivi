@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 
 export function StatTile({
@@ -9,7 +10,7 @@ export function StatTile({
 }: {
   label: string;
   value: string;
-  sublabel?: string;
+  sublabel?: ReactNode;
   icon: LucideIcon;
 }) {
   return (
@@ -23,7 +24,7 @@ export function StatTile({
         </div>
       </div>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{value}</p>
-      {sublabel && <p className="mt-0.5 text-xs text-slate-400">{sublabel}</p>}
+      {sublabel && <div className="mt-0.5 text-xs text-slate-400">{sublabel}</div>}
     </Card>
   );
 }
