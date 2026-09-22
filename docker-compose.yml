@@ -59,6 +59,14 @@ services:
       # dots with dashes, append .sslip.io) — Let's Encrypt can issue a
       # normal, browser-trusted certificate for it, unlike for a bare IP.
       SITE_ADDRESS: ${SITE_ADDRESS:?Set SITE_ADDRESS in your .env, e.g. 148-113-249-182.sslip.io or your own domain — see .env.example}
+    # Explicit public DNS: on Ubuntu hosts, /etc/resolv.conf often points at
+    # systemd-resolved's stub (127.0.0.53), which doesn't exist inside the
+    # container's own network namespace — Caddy would then fail to resolve
+    # Let's Encrypt's ACME server with "connection refused". Overriding it
+    # here avoids depending on the host's DNS setup.
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     ports:
       - "80:80"
       - "443:443"
