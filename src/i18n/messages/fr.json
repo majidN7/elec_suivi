@@ -132,7 +132,18 @@
     "utilisateur": "Utilisateur",
     "action": "Action",
     "entite": "Entité",
-    "details": "Détails"
+    "details": "Détails",
+    "actions": {
+      "CREATE": "Création",
+      "UPDATE": "Modification",
+      "DELETE": "Suppression",
+      "IMPORT": "Import",
+      "SAVE_DRAFT": "Brouillon enregistré",
+      "SUBMIT": "Soumission",
+      "UNLOCK_REQUEST": "Demande de déverrouillage",
+      "UNLOCK_APPROVE": "Déverrouillage approuvé",
+      "UNLOCK_REJECT": "Déverrouillage rejeté"
+    }
   },
   "users": {
     "title": "Gestion des utilisateurs",

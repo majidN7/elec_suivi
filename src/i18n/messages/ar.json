@@ -132,7 +132,18 @@
     "utilisateur": "المستخدم",
     "action": "الإجراء",
     "entite": "الكيان",
-    "details": "التفاصيل"
+    "details": "التفاصيل",
+    "actions": {
+      "CREATE": "إنشاء",
+      "UPDATE": "تعديل",
+      "DELETE": "حذف",
+      "IMPORT": "استيراد",
+      "SAVE_DRAFT": "حفظ مسودة",
+      "SUBMIT": "إرسال",
+      "UNLOCK_REQUEST": "طلب إلغاء القفل",
+      "UNLOCK_APPROVE": "الموافقة على إلغاء القفل",
+      "UNLOCK_REJECT": "رفض إلغاء القفل"
+    }
   },
   "users": {
     "title": "إدارة المستخدمين",

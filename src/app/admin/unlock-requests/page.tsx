@@ -1,4 +1,5 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import { intlLocale, type Locale } from "@/i18n/config";
 import { Unlock as UnlockIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { decideUnlock } from "@/actions/unlock";
@@ -12,6 +13,11 @@ export default async function UnlockRequestsPage() {
   const tu = await getTranslations("unlock");
   const te = await getTranslations("empty");
   const tl = await getTranslations("listes");
+  const locale = (await getLocale()) as Locale;
+  const dateFormatter = new Intl.DateTimeFormat(intlLocale[locale], {
+    dateStyle: "short",
+    timeStyle: "medium",
+  });
 
   const listeLabel: Record<string, string> = {
     LOCALE: tl("locale"),
@@ -61,7 +67,7 @@ export default async function UnlockRequestsPage() {
                   </p>
                   <p className="text-xs text-slate-500">
                     {tu("demandePar")} : {req.demandePar.name} ·{" "}
-                    {req.createdAt.toLocaleString("fr-FR")}
+                    {dateFormatter.format(req.createdAt)}
                   </p>
                 </div>
                 <Badge variant={statutVariant[req.statut]}>{statutLabel[req.statut]}</Badge>
@@ -78,7 +84,8 @@ export default async function UnlockRequestsPage() {
               ) : (
                 <p className="text-xs text-slate-500">
                   {tu("motifTraitement")} : {req.motifTraite || "—"} ·{" "}
-                  {req.traitePar?.name} · {req.traiteAt?.toLocaleString("fr-FR")}
+                  {req.traitePar?.name} ·{" "}
+                  {req.traiteAt ? dateFormatter.format(req.traiteAt) : "—"}
                 </p>
               )}
             </Card>

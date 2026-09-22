@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { ScrollText } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui/page-header";
@@ -6,18 +6,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Table, Thead, Th, Tbody, Tr, Td } from "@/components/ui/table";
-
-const ACTION_LABELS: Record<string, string> = {
-  CREATE: "Création",
-  UPDATE: "Modification",
-  DELETE: "Suppression",
-  IMPORT: "Import",
-  SAVE_DRAFT: "Brouillon enregistré",
-  SUBMIT: "Soumission",
-  UNLOCK_REQUEST: "Demande de déverrouillage",
-  UNLOCK_APPROVE: "Déverrouillage approuvé",
-  UNLOCK_REJECT: "Déverrouillage rejeté",
-};
+import { intlLocale, type Locale } from "@/i18n/config";
 
 const ACTION_VARIANT: Record<string, BadgeVariant> = {
   CREATE: "brand",
@@ -33,7 +22,13 @@ const ACTION_VARIANT: Record<string, BadgeVariant> = {
 
 export default async function AuditPage() {
   const ta = await getTranslations("audit");
+  const tc = await getTranslations("common");
   const te = await getTranslations("empty");
+  const locale = (await getLocale()) as Locale;
+  const dateFormatter = new Intl.DateTimeFormat(intlLocale[locale], {
+    dateStyle: "short",
+    timeStyle: "medium",
+  });
 
   const logs = await prisma.auditLog.findMany({
     orderBy: { createdAt: "desc" },
@@ -56,14 +51,16 @@ export default async function AuditPage() {
             <Th>{ta("entite")}</Th>
             <Th>{ta("utilisateur")}</Th>
             <Th>{ta("details")}</Th>
-            <Th>Date</Th>
+            <Th>{tc("date")}</Th>
           </Thead>
           <Tbody>
             {logs.map((log) => (
               <Tr key={log.id}>
                 <Td>
                   <Badge variant={ACTION_VARIANT[log.action] ?? "neutral"}>
-                    {ACTION_LABELS[log.action] ?? log.action}
+                    {ta.has(`actions.${log.action}`)
+                      ? ta(`actions.${log.action}` as never)
+                      : log.action}
                   </Badge>
                 </Td>
                 <Td>
@@ -79,7 +76,7 @@ export default async function AuditPage() {
                   {log.details ? JSON.stringify(log.details) : "—"}
                 </Td>
                 <Td className="text-slate-500">
-                  {log.createdAt.toLocaleString("fr-FR")}
+                  {dateFormatter.format(log.createdAt)}
                 </Td>
               </Tr>
             ))}

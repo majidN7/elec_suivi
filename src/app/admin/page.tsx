@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import {
   Building2,
   Users,
@@ -17,10 +17,8 @@ import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { siegesPourListe, quotientElectoral, repartirSieges } from "@/lib/seats";
+import { intlLocale, type Locale } from "@/i18n/config";
 import type { TypeListe } from "@/generated/prisma/enums";
-
-const nf = new Intl.NumberFormat("fr-FR");
-const pf = new Intl.NumberFormat("fr-FR", { style: "percent", maximumFractionDigits: 1 });
 
 async function getListeStats(typeListe: TypeListe, totalBureaux: number, totalInscrits: number) {
   const [resultatsSoumis, voixRows] = await Promise.all([
@@ -91,6 +89,9 @@ export default async function AdminDashboardPage() {
   const td = await getTranslations("dashboard");
   const te = await getTranslations("empty");
   const tl = await getTranslations("listes");
+  const locale = (await getLocale()) as Locale;
+  const nf = new Intl.NumberFormat(intlLocale[locale]);
+  const pf = new Intl.NumberFormat(intlLocale[locale], { style: "percent", maximumFractionDigits: 1 });
 
   const [totalBureaux, inscritsAgg] = await Promise.all([
     prisma.bureauVote.count(),
